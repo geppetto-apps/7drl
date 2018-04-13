@@ -11,7 +11,7 @@ class Object:
         self.color = color
 
     def move(self, dx, dy, map):
-        if not map[self.x + dx][self.y + dy].blocked:
+        if not map.tile_at(self.x + dx, self.y + dy).blocked:
             # move by the given amount
             self.x += dx
             self.y += dy

@@ -1,6 +1,7 @@
 import libtcodpy as libtcod
 from object import Object
 from rect import Rect
+from map import Map
 
 SCREEN_WIDTH = 80
 SCREEN_HEIGHT = 50
@@ -8,20 +9,6 @@ LIMIT_FPS = 20
 
 MAP_WIDTH = 80
 MAP_HEIGHT = 45
-
-color_dark_wall = libtcod.Color(0, 0, 100)
-color_dark_ground = libtcod.Color(50, 50, 150)
-
-
-class Tile:
-    # a tile of the map and its properties
-    def __init__(self, blocked, block_sight=None):
-        self.blocked = blocked
-
-        # by default, if a tile is blocked, it also blocks sight
-        if block_sight is None:
-            block_sight = blocked
-        self.block_sight = block_sight
 
 
 libtcod.console_set_custom_font(
@@ -36,42 +23,16 @@ npc = Object(SCREEN_WIDTH/2 - 5, SCREEN_HEIGHT/2, '@', libtcod.yellow)
 objects = [npc, player]
 
 
-def create_room(room):
-    global map
-    # go through the tiles in the rectangle and make them passable
-    for x in range(room.x1 + 1, room.x2):
-        for y in range(room.y1 + 1, room.y2):
-            map[x][y].blocked = False
-            map[x][y].block_sight = False
-
-
-def create_h_tunnel(x1, x2, y):
-    global map
-    for x in range(min(x1, x2), max(x1, x2) + 1):
-        map[x][y].blocked = False
-        map[x][y].block_sight = False
-
-
-def create_v_tunnel(y1, y2, x):
-    global map
-    # vertical tunnel
-    for y in range(min(y1, y2), max(y1, y2) + 1):
-        map[x][y].blocked = False
-        map[x][y].block_sight = False
-
-
 def make_map():
     global map
 
     # fill map with "unblocked" tiles
-    map = [[Tile(True)
-            for y in range(MAP_HEIGHT)]
-           for x in range(MAP_WIDTH)]
+    map = Map(MAP_WIDTH, MAP_HEIGHT)
     room1 = Rect(20, 15, 10, 15)
     room2 = Rect(50, 15, 10, 15)
-    create_room(room1)
-    create_room(room2)
-    create_h_tunnel(25, 55, 23)
+    map.create_room(room1)
+    map.create_room(room2)
+    map.create_h_tunnel(25, 55, 23)
 
 
 def handle_keys():
@@ -101,15 +62,7 @@ def handle_keys():
 def render_all():
     for object in objects:
         object.draw(con)
-    for y in range(MAP_HEIGHT):
-        for x in range(MAP_WIDTH):
-            wall = map[x][y].block_sight
-            if wall:
-                libtcod.console_set_char_background(
-                    con, x, y, color_dark_wall, libtcod.BKGND_SET)
-            else:
-                libtcod.console_set_char_background(
-                    con, x, y, color_dark_ground, libtcod.BKGND_SET)
+    map.draw(con)
     libtcod.console_blit(con, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0)
 
 
