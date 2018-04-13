@@ -3,10 +3,20 @@ from rect import Rect
 
 color_dark_wall = libtcod.Color(0, 0, 100)
 color_dark_ground = libtcod.Color(50, 50, 150)
+color_dark_wall = libtcod.Color(0, 0, 100)
+color_light_wall = libtcod.Color(130, 110, 50)
+color_dark_ground = libtcod.Color(50, 50, 150)
+color_light_ground = libtcod.Color(200, 180, 50)
+
 
 ROOM_MAX_SIZE = 10
 ROOM_MIN_SIZE = 6
 MAX_ROOMS = 30
+
+FOV_ALGO = 0  # default FOV algorithm
+FOV_LIGHT_WALLS = True
+TORCH_RADIUS = 10
+
 
 class Tile:
     # a tile of the map and its properties
@@ -25,6 +35,7 @@ class Map:
         self.h = h
         self.rooms = []
         self.num_rooms = 0
+        self.fov_map = libtcod.map_new(self.w, self.h)
         self.tiles = [[Tile(True)
                        for y in range(self.h)]
                       for x in range(self.w)]
@@ -95,6 +106,17 @@ class Map:
                 # finally, append the new room to the list
                 self.rooms.append(new_room)
                 self.num_rooms += 1
+        self.set_fov()
+
+    def set_fov(self):
+        for y in range(self.h):
+            for x in range(self.w):
+                libtcod.map_set_properties(
+                    self.fov_map, x, y, not self.tiles[x][y].block_sight, not self.tiles[x][y].blocked)
+
+    def fov_recompute(self, player):
+        libtcod.map_compute_fov(
+            self.fov_map, player.x, player.y, TORCH_RADIUS, FOV_LIGHT_WALLS, FOV_ALGO)
 
     def tile_at(self, x, y):
         return self.tiles[x][y]
@@ -102,10 +124,21 @@ class Map:
     def draw(self, con):
         for y in range(self.h):
             for x in range(self.w):
+                visible = libtcod.map_is_in_fov(self.fov_map, x, y)
                 wall = self.tiles[x][y].block_sight
-                if wall:
-                    libtcod.console_set_char_background(
-                        con, x, y, color_dark_wall, libtcod.BKGND_SET)
+                if not visible:
+                    # it's out of the player's FOV
+                    if wall:
+                        libtcod.console_set_char_background(
+                            con, x, y, color_dark_wall, libtcod.BKGND_SET)
+                    else:
+                        libtcod.console_set_char_background(
+                            con, x, y, color_dark_ground, libtcod.BKGND_SET)
                 else:
-                    libtcod.console_set_char_background(
-                        con, x, y, color_dark_ground, libtcod.BKGND_SET)
+                    # it's visible
+                    if wall:
+                        libtcod.console_set_char_background(
+                            con, x, y, color_light_wall, libtcod.BKGND_SET)
+                    else:
+                        libtcod.console_set_char_background(
+                            con, x, y, color_light_ground, libtcod.BKGND_SET)

@@ -30,6 +30,7 @@ def make_map():
     (x, y) = map.rooms[0].center()
     player.x = x
     player.y = y
+    map.fov_recompute(player)
 
 
 def handle_keys():
@@ -45,20 +46,24 @@ def handle_keys():
     # movement keys
     if libtcod.console_is_key_pressed(libtcod.KEY_UP):
         player.move(0, -1, map)
+        map.fov_recompute(player)
 
     elif libtcod.console_is_key_pressed(libtcod.KEY_DOWN):
         player.move(0, 1, map)
+        map.fov_recompute(player)
 
     elif libtcod.console_is_key_pressed(libtcod.KEY_LEFT):
         player.move(-1, 0, map)
+        map.fov_recompute(player)
 
     elif libtcod.console_is_key_pressed(libtcod.KEY_RIGHT):
         player.move(1, 0, map)
+        map.fov_recompute(player)
 
 
 def render_all():
     for object in objects:
-        object.draw(con)
+        object.draw(con, map)
     map.draw(con)
     libtcod.console_blit(con, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0)
 
