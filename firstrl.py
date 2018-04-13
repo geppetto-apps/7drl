@@ -45,6 +45,21 @@ def create_room(room):
             map[x][y].block_sight = False
 
 
+def create_h_tunnel(x1, x2, y):
+    global map
+    for x in range(min(x1, x2), max(x1, x2) + 1):
+        map[x][y].blocked = False
+        map[x][y].block_sight = False
+
+
+def create_v_tunnel(y1, y2, x):
+    global map
+    # vertical tunnel
+    for y in range(min(y1, y2), max(y1, y2) + 1):
+        map[x][y].blocked = False
+        map[x][y].block_sight = False
+
+
 def make_map():
     global map
 
@@ -56,6 +71,7 @@ def make_map():
     room2 = Rect(50, 15, 10, 15)
     create_room(room1)
     create_room(room2)
+    create_h_tunnel(25, 55, 23)
 
 
 def handle_keys():
