@@ -49,17 +49,17 @@ class Map:
 
     def generate(self):
         for r in range(MAX_ROOMS):
-            #random width and height
+            # random width and height
             w = libtcod.random_get_int(0, ROOM_MIN_SIZE, ROOM_MAX_SIZE)
             h = libtcod.random_get_int(0, ROOM_MIN_SIZE, ROOM_MAX_SIZE)
-            #random position without going out of the boundaries of the map
+            # random position without going out of the boundaries of the map
             x = libtcod.random_get_int(0, 0, self.w - w - 1)
             y = libtcod.random_get_int(0, 0, self.h - h - 1)
 
-            #"Rect" class makes rectangles easier to work with
+            # "Rect" class makes rectangles easier to work with
             new_room = Rect(x, y, w, h)
 
-            #run through the other rooms and see if they intersect with this one
+            # run through the other rooms and see if they intersect with this one
             failed = False
             for other_room in self.rooms:
                 if new_room.intersect(other_room):
@@ -67,32 +67,32 @@ class Map:
                     break
 
             if not failed:
-                #this means there are no intersections, so this room is valid
+                # this means there are no intersections, so this room is valid
 
-                #"paint" it to the map's tiles
+                # "paint" it to the map's tiles
                 self.create_room(new_room)
 
-                #center coordinates of new room, will be useful later
+                # center coordinates of new room, will be useful later
                 (new_x, new_y) = new_room.center()
 
                 if self.num_rooms != 0:
-                    #all rooms after the first:
-                    #connect it to the previous room with a tunnel
+                    # all rooms after the first:
+                    # connect it to the previous room with a tunnel
 
-                    #center coordinates of previous room
+                    # center coordinates of previous room
                     (prev_x, prev_y) = self.rooms[self.num_rooms-1].center()
 
-                    #draw a coin (random number that is either 0 or 1)
+                    # draw a coin (random number that is either 0 or 1)
                     if libtcod.random_get_int(0, 0, 1) == 1:
-                        #first move horizontally, then vertically
+                        # first move horizontally, then vertically
                         self.create_h_tunnel(prev_x, new_x, prev_y)
                         self.create_v_tunnel(prev_y, new_y, new_x)
                     else:
-                        #first move vertically, then horizontally
+                        # first move vertically, then horizontally
                         self.create_v_tunnel(prev_y, new_y, prev_x)
                         self.create_h_tunnel(prev_x, new_x, new_y)
 
-                #finally, append the new room to the list
+                # finally, append the new room to the list
                 self.rooms.append(new_room)
                 self.num_rooms += 1
 
