@@ -1,5 +1,6 @@
 import libtcodpy as libtcod
 from object import Object
+from rect import Rect
 
 SCREEN_WIDTH = 80
 SCREEN_HEIGHT = 50
@@ -30,22 +31,31 @@ libtcod.console_init_root(SCREEN_WIDTH, SCREEN_HEIGHT,
 con = libtcod.console_new(SCREEN_WIDTH, SCREEN_HEIGHT)
 libtcod.sys_set_fps(LIMIT_FPS)
 
-player = Object(SCREEN_WIDTH/2, SCREEN_HEIGHT/2, '@', libtcod.white)
+player = Object(25, 23, '@', libtcod.white)
 npc = Object(SCREEN_WIDTH/2 - 5, SCREEN_HEIGHT/2, '@', libtcod.yellow)
 objects = [npc, player]
+
+
+def create_room(room):
+    global map
+    # go through the tiles in the rectangle and make them passable
+    for x in range(room.x1 + 1, room.x2):
+        for y in range(room.y1 + 1, room.y2):
+            map[x][y].blocked = False
+            map[x][y].block_sight = False
 
 
 def make_map():
     global map
 
     # fill map with "unblocked" tiles
-    map = [[Tile(False)
+    map = [[Tile(True)
             for y in range(MAP_HEIGHT)]
            for x in range(MAP_WIDTH)]
-    map[30][22].blocked = True
-    map[30][22].block_sight = True
-    map[50][22].blocked = True
-    map[50][22].block_sight = True
+    room1 = Rect(20, 15, 10, 15)
+    room2 = Rect(50, 15, 10, 15)
+    create_room(room1)
+    create_room(room2)
 
 
 def handle_keys():
