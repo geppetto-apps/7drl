@@ -27,6 +27,7 @@ class Tile:
         if block_sight is None:
             block_sight = blocked
         self.block_sight = block_sight
+        self.explored = False
 
 
 class Map:
@@ -127,13 +128,15 @@ class Map:
                 visible = libtcod.map_is_in_fov(self.fov_map, x, y)
                 wall = self.tiles[x][y].block_sight
                 if not visible:
-                    # it's out of the player's FOV
-                    if wall:
-                        libtcod.console_set_char_background(
-                            con, x, y, color_dark_wall, libtcod.BKGND_SET)
-                    else:
-                        libtcod.console_set_char_background(
-                            con, x, y, color_dark_ground, libtcod.BKGND_SET)
+                    # if it's not visible right now, the player can only see it if it's explored
+                    if self.tiles[x][y].explored:
+                        # it's out of the player's FOV
+                        if wall:
+                            libtcod.console_set_char_background(
+                                con, x, y, color_dark_wall, libtcod.BKGND_SET)
+                        else:
+                            libtcod.console_set_char_background(
+                                con, x, y, color_dark_ground, libtcod.BKGND_SET)
                 else:
                     # it's visible
                     if wall:
@@ -142,3 +145,5 @@ class Map:
                     else:
                         libtcod.console_set_char_background(
                             con, x, y, color_light_ground, libtcod.BKGND_SET)
+                    # since it's visible, explore it
+                    self.tiles[x][y].explored = True
