@@ -87,5 +87,10 @@ while not libtcod.console_is_window_closed():
     for object in objects:
         object.clear(con)
     player_action = handle_keys()
+    #let monsters take their turn
+    if game_state == 'playing' and player_action != 'didnt-take-turn':
+        for object in objects:
+            if object != player:
+                print 'The ' + object.char + ' growls!'
     if player_action == 'exit':
         break
