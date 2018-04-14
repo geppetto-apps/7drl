@@ -1,4 +1,5 @@
 import libtcodpy as libtcod
+import textwrap
 from object import Object
 from map import Map
 from components import Fighter
@@ -99,6 +100,14 @@ def render_all():
     libtcod.console_set_default_background(panel, libtcod.black)
     libtcod.console_clear(panel)
 
+    # print the game messages, one line at a time
+    y = 1
+    for (line, color) in game_msgs:
+        libtcod.console_set_default_foreground(panel, color)
+        libtcod.console_print_ex(
+            panel, MSG_X, y, libtcod.BKGND_NONE, libtcod.LEFT, line)
+        y += 1
+
     # show the player's stats
     render_bar(1, 1, BAR_WIDTH, 'HP', player.fighter.hp, player.fighter.max_hp,
                libtcod.light_red, libtcod.darker_red)
@@ -114,8 +123,30 @@ make_map()
 BAR_WIDTH = 20
 PANEL_HEIGHT = 7
 PANEL_Y = SCREEN_HEIGHT - PANEL_HEIGHT
+MSG_X = BAR_WIDTH + 2
+MSG_WIDTH = SCREEN_WIDTH - BAR_WIDTH - 2
+MSG_HEIGHT = PANEL_HEIGHT - 1
+# create the list of game messages and their colors, starts empty
+game_msgs = []
+
+
+def message(new_msg, color=libtcod.white):
+    # split the message if necessary, among multiple lines
+    new_msg_lines = textwrap.wrap(new_msg, MSG_WIDTH)
+
+    for line in new_msg_lines:
+        # if the buffer is full, remove the first line to make room for the new one
+        if len(game_msgs) == MSG_HEIGHT:
+            del game_msgs[0]
+
+        # add the new line as a tuple, with the text and the color
+        game_msgs.append((line, color))
+
 
 panel = libtcod.console_new(SCREEN_WIDTH, PANEL_HEIGHT)
+
+# a warm welcoming message!
+message('Welcome stranger! Prepare to perish in the Tombs of the Ancient Kings.', libtcod.red)
 
 
 def render_bar(x, y, total_width, name, value, maximum, bar_color, back_color):
