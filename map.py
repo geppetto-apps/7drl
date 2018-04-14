@@ -1,6 +1,7 @@
 import libtcodpy as libtcod
 from rect import Rect
 from object import Object
+from components import Fighter, BasicMonster
 
 color_dark_wall = libtcod.Color(0, 0, 100)
 color_dark_ground = libtcod.Color(50, 50, 150)
@@ -118,18 +119,27 @@ class Map:
         # choose random number of monsters
         num_monsters = libtcod.random_get_int(0, 0, MAX_ROOM_MONSTERS)
 
-        for i in range(num_monsters):
+        for _ in range(num_monsters):
             # choose random spot for this monster
             x = libtcod.random_get_int(0, room.x1 + 1, room.x2 - 1)
             y = libtcod.random_get_int(0, room.y1 + 1, room.y2 - 1)
 
             # 80% chance of getting an orc
+            # 80% chance of getting an orc
             if libtcod.random_get_int(0, 0, 100) < 80:
                 # create an orc
-                monster = Object(x, y, 'o', 'Orc', libtcod.desaturated_green)
+                fighter_component = Fighter(hp=10, defense=0, power=3)
+                ai_component = BasicMonster()
+
+                monster = Object(x, y, 'o', 'orc', libtcod.desaturated_green,
+                                 blocks=True, fighter=fighter_component, ai=ai_component)
             else:
                 # create a troll
-                monster = Object(x, y, 'T', 'Troll', libtcod.darker_green)
+                fighter_component = Fighter(hp=16, defense=1, power=4)
+                ai_component = BasicMonster()
+
+                monster = Object(x, y, 'T', 'troll', libtcod.darker_green,
+                                 blocks=True, fighter=fighter_component, ai=ai_component)
 
             objects.append(monster)
 

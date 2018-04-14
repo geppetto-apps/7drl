@@ -1,6 +1,7 @@
 import libtcodpy as libtcod
 from object import Object
 from map import Map
+from components import Fighter
 
 SCREEN_WIDTH = 80
 SCREEN_HEIGHT = 50
@@ -19,9 +20,11 @@ libtcod.console_init_root(SCREEN_WIDTH, SCREEN_HEIGHT,
 con = libtcod.console_new(SCREEN_WIDTH, SCREEN_HEIGHT)
 libtcod.sys_set_fps(LIMIT_FPS)
 
-player = Object(25, 23, '@', 'Player', libtcod.white)
-npc = Object(SCREEN_WIDTH/2 - 5, SCREEN_HEIGHT/2, '@', 'NPC', libtcod.yellow)
-objects = [npc, player]
+# create object representing the player
+fighter_component = Fighter(hp=30, defense=2, power=5)
+player = Object(0, 0, '@', 'player', libtcod.white,
+                blocks=True, fighter=fighter_component)
+objects = [player]
 
 
 def make_map():
@@ -33,9 +36,6 @@ def make_map():
     player.x = x
     player.y = y
     map.fov_recompute(player)
-    (x, y) = map.rooms[1].center()
-    npc.x = x
-    npc.y = y
 
 
 def handle_keys():
@@ -87,10 +87,10 @@ while not libtcod.console_is_window_closed():
     for object in objects:
         object.clear(con)
     player_action = handle_keys()
-    #let monsters take their turn
+    # let monsters take their turn
     if game_state == 'playing' and player_action != 'didnt-take-turn':
         for object in objects:
             if object != player:
-                print 'The ' + object.name + ' growls!'
+                object.ai.take_turn(map, player, objects)
     if player_action == 'exit':
         break
