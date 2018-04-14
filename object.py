@@ -36,11 +36,13 @@ class Object:
         if target is not None:
             self.fighter.attack(target)
         else:
-            self.move(dx, dy, map, objects)
+            self.move(x, y, map, objects)
 
-    def move(self, dx, dy, map, objects):
-        x = self.x + dx
-        y = self.y + dy
+    def move(self, x, y, map, objects):
+        for object in objects:
+            if object.x == x and object.y == y and object.blocks:
+                return
+
         if map.tile_at(x, y).blocked:
             return
 
@@ -62,7 +64,7 @@ class Object:
         # convert to integer so the movement is restricted to the map grid
         dx = int(round(dx / distance))
         dy = int(round(dy / distance))
-        self.move(dx, dy, map, objects)
+        self.move(self.x + dx, self.y + dy, map, objects)
 
     def distance_to(self, other):
         # return the distance to another object

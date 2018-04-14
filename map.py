@@ -140,14 +140,16 @@ class Map:
             # 80% chance of getting an orc
             if libtcod.random_get_int(0, 0, 100) < 80:
                 # create an orc
-                fighter_component = Fighter(hp=10, defense=0, power=3, death_function=monster_death)
+                fighter_component = Fighter(
+                    hp=10, defense=0, power=3, death_function=monster_death)
                 ai_component = BasicMonster()
 
                 monster = Object(x, y, 'o', 'orc', libtcod.desaturated_green,
                                  blocks=True, fighter=fighter_component, ai=ai_component)
             else:
                 # create a troll
-                fighter_component = Fighter(hp=16, defense=1, power=4, death_function=monster_death)
+                fighter_component = Fighter(
+                    hp=16, defense=1, power=4, death_function=monster_death)
                 ai_component = BasicMonster()
 
                 monster = Object(x, y, 'T', 'troll', libtcod.darker_green,

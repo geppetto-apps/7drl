@@ -85,13 +85,16 @@ def handle_keys():
 
 def render_all():
     for object in objects:
-        object.draw(con, map)
+        if object != player:
+            object.draw(con, map)
+    player.draw(con, map)
     map.draw(con)
-    libtcod.console_blit(con, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0)
-    #show the player's stats
+    # show the player's stats
     libtcod.console_set_default_foreground(con, libtcod.white)
     libtcod.console_print_ex(con, 1, SCREEN_HEIGHT - 2, libtcod.BKGND_NONE, libtcod.LEFT,
-        'HP: ' + str(player.fighter.hp) + '/' + str(player.fighter.max_hp))
+                             'HP: ' + str(player.fighter.hp) + '/' + str(player.fighter.max_hp))
+    libtcod.console_blit(con, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0)
+
 
 make_map()
 while not libtcod.console_is_window_closed():
