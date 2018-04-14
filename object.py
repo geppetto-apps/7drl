@@ -28,7 +28,7 @@ class Object:
         # try to find an attackable object there
         target = None
         for object in objects:
-            if object.x == x and object.y == y:
+            if object.x == x and object.y == y and object.fighter is not None:
                 target = object
                 break
 
