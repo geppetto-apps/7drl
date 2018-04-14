@@ -10,6 +10,24 @@ class Object:
         self.char = char
         self.color = color
 
+    def move_or_attack(self, dx, dy, map, objects):
+        #the coordinates the player is moving to/attacking
+        x = self.x + dx
+        y = self.y + dy
+
+        #try to find an attackable object there
+        target = None
+        for object in objects:
+            if object.x == x and object.y == y:
+                target = object
+                break
+
+        #attack if target found, move otherwise
+        if target is not None:
+            print 'The ' + target.char + ' laughs at your puny efforts to attack him!'
+        else:
+            self.move(dx, dy, map)
+
     def move(self, dx, dy, map):
         if not map.tile_at(self.x + dx, self.y + dy).blocked:
             # move by the given amount

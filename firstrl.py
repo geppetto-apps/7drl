@@ -51,19 +51,19 @@ def handle_keys():
     if game_state == 'playing':
         # movement keys
         if libtcod.console_is_key_pressed(libtcod.KEY_UP):
-            player.move(0, -1, map)
+            player.move_or_attack(0, -1, map, objects)
             map.fov_recompute(player)
 
         elif libtcod.console_is_key_pressed(libtcod.KEY_DOWN):
-            player.move(0, 1, map)
+            player.move_or_attack(0, 1, map, objects)
             map.fov_recompute(player)
 
         elif libtcod.console_is_key_pressed(libtcod.KEY_LEFT):
-            player.move(-1, 0, map)
+            player.move_or_attack(-1, 0, map, objects)
             map.fov_recompute(player)
 
         elif libtcod.console_is_key_pressed(libtcod.KEY_RIGHT):
-            player.move(1, 0, map)
+            player.move_or_attack(1, 0, map, objects)
             map.fov_recompute(player)
 
         else:
