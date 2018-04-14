@@ -82,3 +82,8 @@ class Object:
     def clear(self, con):
         # erase the character that represents this object
         libtcod.console_put_char(con, self.x, self.y, ' ', libtcod.BKGND_NONE)
+
+    def send_to_back(self, objects):
+        #make this object be drawn first, so all others appear above it if they're in the same tile.
+        objects.remove(self)
+        objects.insert(0, self)

@@ -21,19 +21,6 @@ TORCH_RADIUS = 10
 
 MAX_ROOM_MONSTERS = 10
 
-
-def monster_death(monster):
-    # transform it into a nasty corpse! it doesn't block, can't be
-    # attacked and doesn't move
-    print monster.name.capitalize() + ' is dead!'
-    monster.char = '%'
-    monster.color = libtcod.dark_red
-    monster.blocks = False
-    monster.fighter = None
-    monster.ai = None
-    monster.name = 'remains of ' + monster.name
-
-
 class Tile:
     # a tile of the map and its properties
     def __init__(self, blocked, block_sight=None):
@@ -128,6 +115,18 @@ class Map:
         self.set_fov()
 
     def place_objects(self, room, objects):
+        def monster_death(monster):
+            # transform it into a nasty corpse! it doesn't block, can't be
+            # attacked and doesn't move
+            print monster.name.capitalize() + ' is dead!'
+            monster.char = '%'
+            monster.color = libtcod.dark_red
+            monster.blocks = False
+            monster.fighter = None
+            monster.ai = None
+            monster.name = 'remains of ' + monster.name
+            monster.send_to_back(objects)
+
         # choose random number of monsters
         num_monsters = libtcod.random_get_int(0, 0, MAX_ROOM_MONSTERS)
 
