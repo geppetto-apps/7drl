@@ -20,18 +20,21 @@ libtcod.console_init_root(SCREEN_WIDTH, SCREEN_HEIGHT,
 con = libtcod.console_new(SCREEN_WIDTH, SCREEN_HEIGHT)
 libtcod.sys_set_fps(LIMIT_FPS)
 
+
 def player_death(player):
-    #the game ended!
+    # the game ended!
     global game_state
     print 'You died!'
     game_state = 'dead'
 
-    #for added effect, transform the player into a corpse!
+    # for added effect, transform the player into a corpse!
     player.char = '%'
     player.color = libtcod.dark_red
 
+
 # create object representing the player
-fighter_component = Fighter(hp=30, defense=2, power=5, death_function=player_death)
+fighter_component = Fighter(
+    hp=30, defense=2, power=5, death_function=player_death)
 player = Object(0, 0, '@', 'player', libtcod.white,
                 blocks=True, fighter=fighter_component)
 objects = [player]
