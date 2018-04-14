@@ -95,8 +95,49 @@ def render_all():
                              'HP: ' + str(player.fighter.hp) + '/' + str(player.fighter.max_hp) + '  ')
     libtcod.console_blit(con, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0)
 
+    # prepare to render the GUI panel
+    libtcod.console_set_default_background(panel, libtcod.black)
+    libtcod.console_clear(panel)
+
+    # show the player's stats
+    render_bar(1, 1, BAR_WIDTH, 'HP', player.fighter.hp, player.fighter.max_hp,
+               libtcod.light_red, libtcod.darker_red)
+
+    # blit the contents of "panel" to the root console
+    libtcod.console_blit(panel, 0, 0, SCREEN_WIDTH,
+                         PANEL_HEIGHT, 0, 0, PANEL_Y)
+
 
 make_map()
+
+# sizes and coordinates relevant for the GUI
+BAR_WIDTH = 20
+PANEL_HEIGHT = 7
+PANEL_Y = SCREEN_HEIGHT - PANEL_HEIGHT
+
+panel = libtcod.console_new(SCREEN_WIDTH, PANEL_HEIGHT)
+
+
+def render_bar(x, y, total_width, name, value, maximum, bar_color, back_color):
+    # render a bar (HP, experience, etc). first calculate the width of the bar
+    bar_width = int(float(value) / maximum * total_width)
+
+    # render the background first
+    libtcod.console_set_default_background(panel, back_color)
+    libtcod.console_rect(panel, x, y, total_width, 1,
+                         False, libtcod.BKGND_SCREEN)
+
+    # now render the bar on top
+    libtcod.console_set_default_background(panel, bar_color)
+    if bar_width > 0:
+        libtcod.console_rect(panel, x, y, bar_width, 1,
+                             False, libtcod.BKGND_SCREEN)
+    # finally, some centered text with the values
+    libtcod.console_set_default_foreground(panel, libtcod.white)
+    libtcod.console_print_ex(panel, x + total_width / 2, y, libtcod.BKGND_NONE, libtcod.CENTER,
+                             name + ': ' + str(value) + '/' + str(maximum))
+
+
 while not libtcod.console_is_window_closed():
     libtcod.console_set_default_foreground(con, libtcod.white)
     render_all()
