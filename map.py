@@ -1,5 +1,6 @@
 import libtcodpy as libtcod
 from rect import Rect
+from object import Object
 
 color_dark_wall = libtcod.Color(0, 0, 100)
 color_dark_ground = libtcod.Color(50, 50, 150)
@@ -16,6 +17,8 @@ MAX_ROOMS = 30
 FOV_ALGO = 0  # default FOV algorithm
 FOV_LIGHT_WALLS = True
 TORCH_RADIUS = 10
+
+MAX_ROOM_MONSTERS = 10
 
 
 class Tile:
@@ -59,7 +62,7 @@ class Map:
             self.tiles[x][y].blocked = False
             self.tiles[x][y].block_sight = False
 
-    def generate(self):
+    def generate(self, objects):
         for r in range(MAX_ROOMS):
             # random width and height
             w = libtcod.random_get_int(0, ROOM_MIN_SIZE, ROOM_MAX_SIZE)
@@ -107,7 +110,28 @@ class Map:
                 # finally, append the new room to the list
                 self.rooms.append(new_room)
                 self.num_rooms += 1
+                # add some contents to this room, such as monsters
+                self.place_objects(new_room, objects)
         self.set_fov()
+
+    def place_objects(self, room, objects):
+        # choose random number of monsters
+        num_monsters = libtcod.random_get_int(0, 0, MAX_ROOM_MONSTERS)
+
+        for i in range(num_monsters):
+            # choose random spot for this monster
+            x = libtcod.random_get_int(0, room.x1 + 1, room.x2 - 1)
+            y = libtcod.random_get_int(0, room.y1 + 1, room.y2 - 1)
+
+            # 80% chance of getting an orc
+            if libtcod.random_get_int(0, 0, 100) < 80:
+                # create an orc
+                monster = Object(x, y, 'o', libtcod.desaturated_green)
+            else:
+                # create a troll
+                monster = Object(x, y, 'T', libtcod.darker_green)
+
+            objects.append(monster)
 
     def set_fov(self):
         for y in range(self.h):

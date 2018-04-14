@@ -26,7 +26,7 @@ def make_map():
     global map
 
     map = Map(MAP_WIDTH, MAP_HEIGHT)
-    map.generate()
+    map.generate(objects)
     (x, y) = map.rooms[0].center()
     player.x = x
     player.y = y
