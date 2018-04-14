@@ -22,6 +22,18 @@ TORCH_RADIUS = 10
 MAX_ROOM_MONSTERS = 10
 
 
+def monster_death(monster):
+    # transform it into a nasty corpse! it doesn't block, can't be
+    # attacked and doesn't move
+    print monster.name.capitalize() + ' is dead!'
+    monster.char = '%'
+    monster.color = libtcod.dark_red
+    monster.blocks = False
+    monster.fighter = None
+    monster.ai = None
+    monster.name = 'remains of ' + monster.name
+
+
 class Tile:
     # a tile of the map and its properties
     def __init__(self, blocked, block_sight=None):
@@ -128,14 +140,14 @@ class Map:
             # 80% chance of getting an orc
             if libtcod.random_get_int(0, 0, 100) < 80:
                 # create an orc
-                fighter_component = Fighter(hp=10, defense=0, power=3)
+                fighter_component = Fighter(hp=10, defense=0, power=3, death_function=monster_death)
                 ai_component = BasicMonster()
 
                 monster = Object(x, y, 'o', 'orc', libtcod.desaturated_green,
                                  blocks=True, fighter=fighter_component, ai=ai_component)
             else:
                 # create a troll
-                fighter_component = Fighter(hp=16, defense=1, power=4)
+                fighter_component = Fighter(hp=16, defense=1, power=4, death_function=monster_death)
                 ai_component = BasicMonster()
 
                 monster = Object(x, y, 'T', 'troll', libtcod.darker_green,

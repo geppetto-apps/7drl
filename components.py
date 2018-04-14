@@ -3,12 +3,39 @@ import libtcodpy as libtcod
 
 class Fighter:
     # combat-related properties and methods (monster, player, NPC).
-    def __init__(self, hp, defense, power):
+    def __init__(self, hp, defense, power, death_function=None):
         self.owner = None
         self.max_hp = hp
         self.hp = hp
         self.defense = defense
         self.power = power
+        self.death_function = death_function
+
+    def take_damage(self, damage):
+        # apply damage if possible
+        if damage > 0:
+            self.hp -= damage
+        #check for death. if there's a death function, call it
+        if self.hp <= 0:
+            function = self.death_function
+            if function is not None:
+                function(self.owner)
+
+    def attack(self, target):
+        if target.fighter is None:
+            return
+
+        # a simple formula for attack damage
+        damage = self.power - target.fighter.defense
+
+        if damage > 0:
+            # make the target take some damage
+            print self.owner.name.capitalize() + ' attacks ' + target.name + \
+                ' for ' + str(damage) + ' hit points.'
+            target.fighter.take_damage(damage)
+        else:
+            print self.owner.name.capitalize() + ' attacks ' + target.name + \
+                ' but it has no effect!'
 
 
 class BasicMonster:
@@ -27,5 +54,4 @@ class BasicMonster:
 
             # close enough, attack! (if the player is still alive.)
             elif player.fighter.hp > 0:
-                print 'The attack of the ' + monster.name + \
-                    ' bounces off your shiny metal armor!'
+                monster.fighter.attack(player)

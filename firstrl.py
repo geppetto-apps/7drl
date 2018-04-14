@@ -20,8 +20,18 @@ libtcod.console_init_root(SCREEN_WIDTH, SCREEN_HEIGHT,
 con = libtcod.console_new(SCREEN_WIDTH, SCREEN_HEIGHT)
 libtcod.sys_set_fps(LIMIT_FPS)
 
+def player_death(player):
+    #the game ended!
+    global game_state
+    print 'You died!'
+    game_state = 'dead'
+
+    #for added effect, transform the player into a corpse!
+    player.char = '%'
+    player.color = libtcod.dark_red
+
 # create object representing the player
-fighter_component = Fighter(hp=30, defense=2, power=5)
+fighter_component = Fighter(hp=30, defense=2, power=5, death_function=player_death)
 player = Object(0, 0, '@', 'player', libtcod.white,
                 blocks=True, fighter=fighter_component)
 objects = [player]
@@ -75,7 +85,10 @@ def render_all():
         object.draw(con, map)
     map.draw(con)
     libtcod.console_blit(con, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0)
-
+    #show the player's stats
+    libtcod.console_set_default_foreground(con, libtcod.white)
+    libtcod.console_print_ex(con, 1, SCREEN_HEIGHT - 2, libtcod.BKGND_NONE, libtcod.LEFT,
+        'HP: ' + str(player.fighter.hp) + '/' + str(player.fighter.max_hp))
 
 make_map()
 while not libtcod.console_is_window_closed():
@@ -90,7 +103,7 @@ while not libtcod.console_is_window_closed():
     # let monsters take their turn
     if game_state == 'playing' and player_action != 'didnt-take-turn':
         for object in objects:
-            if object != player:
+            if object != player and object.ai != None:
                 object.ai.take_turn(map, player, objects)
     if player_action == 'exit':
         break

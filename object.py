@@ -34,7 +34,7 @@ class Object:
 
         # attack if target found, move otherwise
         if target is not None:
-            print 'The ' + target.name + ' laughs at your puny efforts to attack him!'
+            self.fighter.attack(target)
         else:
             self.move(dx, dy, map, objects)
 
