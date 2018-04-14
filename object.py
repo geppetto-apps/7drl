@@ -4,11 +4,12 @@ import libtcodpy as libtcod
 class Object:
     # this is a generic object: the player, a monster, an item, the stairs...
     # it's always represented by a character on screen.
-    def __init__(self, x, y, char, color):
+    def __init__(self, x, y, char, name, color):
         self.x = x
         self.y = y
         self.char = char
         self.color = color
+        self.name = name
 
     def move_or_attack(self, dx, dy, map, objects):
         #the coordinates the player is moving to/attacking
@@ -24,7 +25,7 @@ class Object:
 
         #attack if target found, move otherwise
         if target is not None:
-            print 'The ' + target.char + ' laughs at your puny efforts to attack him!'
+            print 'The ' + target.name + ' laughs at your puny efforts to attack him!'
         else:
             self.move(dx, dy, map)
 

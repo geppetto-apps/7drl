@@ -126,10 +126,10 @@ class Map:
             # 80% chance of getting an orc
             if libtcod.random_get_int(0, 0, 100) < 80:
                 # create an orc
-                monster = Object(x, y, 'o', libtcod.desaturated_green)
+                monster = Object(x, y, 'o', 'Orc', libtcod.desaturated_green)
             else:
                 # create a troll
-                monster = Object(x, y, 'T', libtcod.darker_green)
+                monster = Object(x, y, 'T', 'Troll', libtcod.darker_green)
 
             objects.append(monster)
 

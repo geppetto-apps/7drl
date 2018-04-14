@@ -19,8 +19,8 @@ libtcod.console_init_root(SCREEN_WIDTH, SCREEN_HEIGHT,
 con = libtcod.console_new(SCREEN_WIDTH, SCREEN_HEIGHT)
 libtcod.sys_set_fps(LIMIT_FPS)
 
-player = Object(25, 23, '@', libtcod.white)
-npc = Object(SCREEN_WIDTH/2 - 5, SCREEN_HEIGHT/2, '@', libtcod.yellow)
+player = Object(25, 23, '@', 'Player', libtcod.white)
+npc = Object(SCREEN_WIDTH/2 - 5, SCREEN_HEIGHT/2, '@', 'NPC', libtcod.yellow)
 objects = [npc, player]
 
 
@@ -91,6 +91,6 @@ while not libtcod.console_is_window_closed():
     if game_state == 'playing' and player_action != 'didnt-take-turn':
         for object in objects:
             if object != player:
-                print 'The ' + object.char + ' growls!'
+                print 'The ' + object.name + ' growls!'
     if player_action == 'exit':
         break
