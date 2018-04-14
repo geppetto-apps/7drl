@@ -31,6 +31,9 @@ def make_map():
     player.x = x
     player.y = y
     map.fov_recompute(player)
+    (x, y) = map.rooms[1].center()
+    npc.x = x
+    npc.y = y
 
 
 def handle_keys():
