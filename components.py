@@ -1,4 +1,5 @@
 import libtcodpy as libtcod
+from message import message
 
 
 class Fighter:
@@ -30,12 +31,12 @@ class Fighter:
 
         if damage > 0:
             # make the target take some damage
-            print self.owner.name.capitalize() + ' attacks ' + target.name + \
-                ' for ' + str(damage) + ' hit points.'
+            message(self.owner.name.capitalize() + ' attacks ' + target.name +
+                    ' for ' + str(damage) + ' hit points.')
             target.fighter.take_damage(damage)
         else:
-            print self.owner.name.capitalize() + ' attacks ' + target.name + \
-                ' but it has no effect!'
+            message(self.owner.name.capitalize() + ' attacks ' + target.name +
+                    ' but it has no effect!')
 
 
 class BasicMonster:

@@ -2,6 +2,7 @@ import libtcodpy as libtcod
 from rect import Rect
 from object import Object
 from components import Fighter, BasicMonster
+from message import message
 
 color_dark_wall = libtcod.Color(0, 0, 100)
 color_dark_ground = libtcod.Color(50, 50, 150)
@@ -20,6 +21,7 @@ FOV_LIGHT_WALLS = True
 TORCH_RADIUS = 10
 
 MAX_ROOM_MONSTERS = 10
+
 
 class Tile:
     # a tile of the map and its properties
@@ -118,7 +120,7 @@ class Map:
         def monster_death(monster):
             # transform it into a nasty corpse! it doesn't block, can't be
             # attacked and doesn't move
-            print monster.name.capitalize() + ' is dead!'
+            message(monster.name.capitalize() + ' is dead!', libtcod.green)
             monster.char = '%'
             monster.color = libtcod.dark_red
             monster.blocks = False

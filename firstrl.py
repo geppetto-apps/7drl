@@ -19,7 +19,7 @@ libtcod.sys_set_fps(LIMIT_FPS)
 def player_death(player):
     # the game ended!
     global game_state
-    print 'You died!'
+    message('You died!', libtcod.dark_red)
     game_state = 'dead'
 
     # for added effect, transform the player into a corpse!
