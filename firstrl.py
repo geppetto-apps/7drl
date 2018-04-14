@@ -1,15 +1,9 @@
 import libtcodpy as libtcod
-import textwrap
 from object import Object
 from map import Map
 from components import Fighter
-
-SCREEN_WIDTH = 80
-SCREEN_HEIGHT = 50
-LIMIT_FPS = 20
-
-MAP_WIDTH = 80
-MAP_HEIGHT = 45
+from message import game_msgs, message
+from constants import *
 
 game_state = 'playing'
 player_action = None
@@ -117,36 +111,13 @@ def render_all():
                          PANEL_HEIGHT, 0, 0, PANEL_Y)
 
 
-make_map()
-
-# sizes and coordinates relevant for the GUI
-BAR_WIDTH = 20
-PANEL_HEIGHT = 7
-PANEL_Y = SCREEN_HEIGHT - PANEL_HEIGHT
-MSG_X = BAR_WIDTH + 2
-MSG_WIDTH = SCREEN_WIDTH - BAR_WIDTH - 2
-MSG_HEIGHT = PANEL_HEIGHT - 1
-# create the list of game messages and their colors, starts empty
-game_msgs = []
-
-
-def message(new_msg, color=libtcod.white):
-    # split the message if necessary, among multiple lines
-    new_msg_lines = textwrap.wrap(new_msg, MSG_WIDTH)
-
-    for line in new_msg_lines:
-        # if the buffer is full, remove the first line to make room for the new one
-        if len(game_msgs) == MSG_HEIGHT:
-            del game_msgs[0]
-
-        # add the new line as a tuple, with the text and the color
-        game_msgs.append((line, color))
-
-
 panel = libtcod.console_new(SCREEN_WIDTH, PANEL_HEIGHT)
 
 # a warm welcoming message!
 message('Welcome stranger! Prepare to perish in the Tombs of the Ancient Kings.', libtcod.red)
+
+
+make_map()
 
 
 def render_bar(x, y, total_width, name, value, maximum, bar_color, back_color):
