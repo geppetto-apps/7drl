@@ -4,6 +4,7 @@ from map import Map
 from components import Fighter
 from message import game_msgs, message
 from constants import *
+from dungeon_generator import DungeonGenerator
 
 game_state = 'playing'
 player_action = None
@@ -38,8 +39,9 @@ objects = [player]
 def make_map():
     global map
 
+    generator = DungeonGenerator()
     map = Map(MAP_WIDTH, MAP_HEIGHT)
-    map.generate(objects)
+    generator.generate(map, objects)
     (x, y) = map.rooms[0].center()
     player.x = x
     player.y = y
