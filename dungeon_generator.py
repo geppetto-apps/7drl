@@ -93,7 +93,6 @@ class DungeonGenerator:
             y = libtcod.random_get_int(self.random, room.y1 + 1, room.y2 - 1)
 
             # 80% chance of getting an orc
-            # 80% chance of getting an orc
             if libtcod.random_get_int(self.random, 0, 100) < 80:
                 # create an orc
                 fighter_component = Fighter(
