@@ -45,6 +45,14 @@ class Map:
             for y in range(room.y1 + 1, room.y2):
                 self.tiles[x][y].blocked = False
                 self.tiles[x][y].block_sight = False
+        self.tiles[room.x1 + 1][room.y1 + 1].blocked = True
+        self.tiles[room.x1 + 1][room.y1 + 1].block_sight = True
+        self.tiles[room.x1 + 1][room.y2 - 1].blocked = True
+        self.tiles[room.x1 + 1][room.y2 - 1].block_sight = True
+        self.tiles[room.x2 - 1][room.y1 + 1].blocked = True
+        self.tiles[room.x2 - 1][room.y1 + 1].block_sight = True
+        self.tiles[room.x2 - 1][room.y2 - 1].blocked = True
+        self.tiles[room.x2 - 1][room.y2 - 1].block_sight = True
 
     def create_h_tunnel(self, x1, x2, y):
         for x in range(min(x1, x2), max(x1, x2) + 1):
