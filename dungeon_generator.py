@@ -92,22 +92,24 @@ class DungeonGenerator:
             x = libtcod.random_get_int(self.random, room.x1 + 1, room.x2 - 1)
             y = libtcod.random_get_int(self.random, room.y1 + 1, room.y2 - 1)
 
-            # 80% chance of getting an orc
-            if libtcod.random_get_int(self.random, 0, 100) < 80:
-                # create an orc
-                fighter_component = Fighter(
-                    hp=10, defense=0, power=3, death_function=monster_death)
-                ai_component = BasicMonster()
+            # only place it if the tile is not blocked
+            if not map.tile_at(x, y).blocked:
+                # 80% chance of getting an orc
+                if libtcod.random_get_int(self.random, 0, 100) < 80:
+                    # create an orc
+                    fighter_component = Fighter(
+                        hp=10, defense=0, power=3, death_function=monster_death)
+                    ai_component = BasicMonster()
 
-                monster = Object(x, y, 'o', 'orc', libtcod.desaturated_green,
-                                 blocks=True, fighter=fighter_component, ai=ai_component)
-            else:
-                # create a troll
-                fighter_component = Fighter(
-                    hp=16, defense=1, power=4, death_function=monster_death)
-                ai_component = BasicMonster()
+                    monster = Object(x, y, 'o', 'orc', libtcod.desaturated_green,
+                                     blocks=True, fighter=fighter_component, ai=ai_component)
+                else:
+                    # create a troll
+                    fighter_component = Fighter(
+                        hp=16, defense=1, power=4, death_function=monster_death)
+                    ai_component = BasicMonster()
 
-                monster = Object(x, y, 'T', 'troll', libtcod.darker_green,
-                                 blocks=True, fighter=fighter_component, ai=ai_component)
+                    monster = Object(x, y, 'T', 'troll', libtcod.darker_green,
+                                     blocks=True, fighter=fighter_component, ai=ai_component)
 
-            objects.append(monster)
+                objects.append(monster)
