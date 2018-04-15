@@ -1,5 +1,5 @@
 import libtcodpy as libtcod
-from components import Fighter, BasicMonster
+from components import Fighter, BasicMonster, Item
 from rect import Rect
 from message import message
 from object import Object
@@ -9,6 +9,7 @@ ROOM_MIN_SIZE = 6
 MAX_ROOMS = 30
 
 MAX_ROOM_MONSTERS = 5
+MAX_ROOM_ITEMS = 2
 
 
 class DungeonGenerator:
@@ -113,3 +114,20 @@ class DungeonGenerator:
                                      blocks=True, fighter=fighter_component, ai=ai_component)
 
                 objects.append(monster)
+
+        # choose random number of items
+        num_items = libtcod.random_get_int(self.random, 0, MAX_ROOM_ITEMS)
+
+        for i in range(num_items):
+            # choose random spot for this item
+            x = libtcod.random_get_int(self.random, room.x1+1, room.x2-1)
+            y = libtcod.random_get_int(self.random, room.y1+1, room.y2-1)
+
+            # only place it if the tile is not blocked
+            if not map.tile_at(x, y).blocked:
+                # create a healing potion
+                item_component = Item()
+                item = Object(x, y, '!', 'healing potion', libtcod.violet, item=item_component)
+
+                objects.append(item)
+                item.send_to_back(objects)  # items appear below other objects
