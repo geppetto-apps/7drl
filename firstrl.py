@@ -5,6 +5,7 @@ from components import Fighter
 from message import game_msgs, message
 from constants import *
 from dungeon_generator import DungeonGenerator
+from envparse import env
 
 game_state = 'playing'
 player_action = None
@@ -39,7 +40,7 @@ objects = [player]
 def make_map():
     global map
 
-    generator = DungeonGenerator()
+    generator = DungeonGenerator(env.int('SEED', default=None))
     map = Map(MAP_WIDTH, MAP_HEIGHT)
     generator.generate(map, objects)
     (x, y) = map.rooms[0].center()

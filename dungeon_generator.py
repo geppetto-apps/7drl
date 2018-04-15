@@ -12,14 +12,20 @@ MAX_ROOM_MONSTERS = 5
 
 
 class DungeonGenerator:
+    def __init__(self, seed=None):
+        self.seed = seed or libtcod.random_get_int(0, 0, 65555)
+        self.random = libtcod.random_new_from_seed(self.seed)
+
     def generate(self, map, objects):
         for r in range(MAX_ROOMS):
             # random width and height
-            w = libtcod.random_get_int(0, ROOM_MIN_SIZE, ROOM_MAX_SIZE)
-            h = libtcod.random_get_int(0, ROOM_MIN_SIZE, ROOM_MAX_SIZE)
+            w = libtcod.random_get_int(
+                self.random, ROOM_MIN_SIZE, ROOM_MAX_SIZE)
+            h = libtcod.random_get_int(
+                self.random, ROOM_MIN_SIZE, ROOM_MAX_SIZE)
             # random position without going out of the boundaries of the map
-            x = libtcod.random_get_int(0, 0, map.w - w - 1)
-            y = libtcod.random_get_int(0, 0, map.h - h - 1)
+            x = libtcod.random_get_int(self.random, 0, map.w - w - 1)
+            y = libtcod.random_get_int(self.random, 0, map.h - h - 1)
 
             # "Rect" class makes rectangles easier to work with
             new_room = Rect(x, y, w, h)
@@ -48,7 +54,7 @@ class DungeonGenerator:
                     (prev_x, prev_y) = map.rooms[map.num_rooms-1].center()
 
                     # draw a coin (random number that is either 0 or 1)
-                    if libtcod.random_get_int(0, 0, 1) == 1:
+                    if libtcod.random_get_int(self.random, 0, 1) == 1:
                         # first move horizontally, then vertically
                         map.create_h_tunnel(prev_x, new_x, prev_y)
                         map.create_v_tunnel(prev_y, new_y, new_x)
@@ -78,16 +84,17 @@ class DungeonGenerator:
             monster.send_to_back(objects)
 
         # choose random number of monsters
-        num_monsters = libtcod.random_get_int(0, 0, MAX_ROOM_MONSTERS)
+        num_monsters = libtcod.random_get_int(
+            self.random, 0, MAX_ROOM_MONSTERS)
 
         for _ in range(num_monsters):
             # choose random spot for this monster
-            x = libtcod.random_get_int(0, room.x1 + 1, room.x2 - 1)
-            y = libtcod.random_get_int(0, room.y1 + 1, room.y2 - 1)
+            x = libtcod.random_get_int(self.random, room.x1 + 1, room.x2 - 1)
+            y = libtcod.random_get_int(self.random, room.y1 + 1, room.y2 - 1)
 
             # 80% chance of getting an orc
             # 80% chance of getting an orc
-            if libtcod.random_get_int(0, 0, 100) < 80:
+            if libtcod.random_get_int(self.random, 0, 100) < 80:
                 # create an orc
                 fighter_component = Fighter(
                     hp=10, defense=0, power=3, death_function=monster_death)
