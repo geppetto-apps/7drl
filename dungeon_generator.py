@@ -11,13 +11,15 @@ MAX_ROOMS = 30
 MAX_ROOM_MONSTERS = 5
 MAX_ROOM_ITEMS = 2
 
+HEAL_AMOUNT = 4
+
 
 class DungeonGenerator:
     def __init__(self, seed=None):
         self.seed = seed or libtcod.random_get_int(0, 0, 65555)
         self.random = libtcod.random_new_from_seed(self.seed)
 
-    def generate(self, map, objects):
+    def generate(self, map, objects, player):
         for r in range(MAX_ROOMS):
             # random width and height
             w = libtcod.random_get_int(
@@ -68,10 +70,10 @@ class DungeonGenerator:
                 map.rooms.append(new_room)
                 map.num_rooms += 1
                 # add some contents to this room, such as monsters
-                self.place_objects(map, new_room, objects)
+                self.place_objects(map, new_room, objects, player)
         map.set_fov()
 
-    def place_objects(self, map, room, objects):
+    def place_objects(self, map, room, objects, player):
         def monster_death(monster):
             # transform it into a nasty corpse! it doesn't block, can't be
             # attacked and doesn't move
@@ -118,6 +120,15 @@ class DungeonGenerator:
         # choose random number of items
         num_items = libtcod.random_get_int(self.random, 0, MAX_ROOM_ITEMS)
 
+        def cast_heal():
+            # heal the player
+            if player.fighter.hp == player.fighter.max_hp:
+                message('You are already at full health.', libtcod.red)
+                return 'cancelled'
+
+            message('Your wounds start to feel better!', libtcod.light_violet)
+            player.fighter.heal(HEAL_AMOUNT)
+
         for i in range(num_items):
             # choose random spot for this item
             x = libtcod.random_get_int(self.random, room.x1+1, room.x2-1)
@@ -126,8 +137,9 @@ class DungeonGenerator:
             # only place it if the tile is not blocked
             if not map.tile_at(x, y).blocked:
                 # create a healing potion
-                item_component = Item()
-                item = Object(x, y, '!', 'healing potion', libtcod.violet, item=item_component)
+                item_component = Item(use_function=cast_heal)
+                item = Object(x, y, '!', 'healing potion',
+                              libtcod.violet, item=item_component)
 
                 objects.append(item)
                 item.send_to_back(objects)  # items appear below other objects

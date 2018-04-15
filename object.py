@@ -20,7 +20,7 @@ class Object:
         if self.ai:  # let the AI component know who owns it
             self.ai.owner = self
         self.item = item
-        if self.item:  #let the Item component know who owns it
+        if self.item:  # let the Item component know who owns it
             self.item.owner = self
 
     def move_or_attack(self, dx, dy, map, objects):
