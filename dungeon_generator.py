@@ -74,6 +74,15 @@ class DungeonGenerator:
         map.set_fov()
 
     def place_objects(self, map, room, objects, player):
+        def cast_heal():
+            # heal the player
+            if player.fighter.hp == player.fighter.max_hp:
+                message('You are already at full health.', libtcod.red)
+                return 'cancelled'
+
+            message('Your wounds start to feel better!', libtcod.light_violet)
+            player.fighter.heal(HEAL_AMOUNT)
+
         def monster_death(monster):
             # transform it into a nasty corpse! it doesn't block, can't be
             # attacked and doesn't move
@@ -83,6 +92,11 @@ class DungeonGenerator:
             monster.blocks = False
             monster.fighter = None
             monster.ai = None
+            if monster.name == 'orc':
+                # 50 % chance of dropping potion
+                if libtcod.random_get_int(self.random, 0, 100) < 50:
+                    message(monster.name.capitalize() + ' dropped healing potion!', libtcod.light_amber)
+                    self.place_potion(cast_heal, monster.x, monster.y, objects)
             monster.name = 'remains of ' + monster.name
             monster.send_to_back(objects)
 
@@ -120,15 +134,6 @@ class DungeonGenerator:
         # choose random number of items
         num_items = libtcod.random_get_int(self.random, 0, MAX_ROOM_ITEMS)
 
-        def cast_heal():
-            # heal the player
-            if player.fighter.hp == player.fighter.max_hp:
-                message('You are already at full health.', libtcod.red)
-                return 'cancelled'
-
-            message('Your wounds start to feel better!', libtcod.light_violet)
-            player.fighter.heal(HEAL_AMOUNT)
-
         for i in range(num_items):
             # choose random spot for this item
             x = libtcod.random_get_int(self.random, room.x1+1, room.x2-1)
@@ -136,10 +141,14 @@ class DungeonGenerator:
 
             # only place it if the tile is not blocked
             if not map.tile_at(x, y).blocked:
-                # create a healing potion
-                item_component = Item(use_function=cast_heal)
-                item = Object(x, y, '!', 'healing potion',
-                              libtcod.violet, item=item_component)
+                self.place_potion(cast_heal, x, y, objects)
 
-                objects.append(item)
-                item.send_to_back(objects)  # items appear below other objects
+    def place_potion(self, cast_heal, x, y, objects):
+        # create a healing potion
+        item_component = Item(use_function=cast_heal)
+        item = Object(x, y, '!', 'healing potion',
+                        libtcod.violet, item=item_component)
+
+        objects.append(item)
+        item.send_to_back(objects)  # items appear below other objects
+
