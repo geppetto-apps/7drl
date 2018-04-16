@@ -61,6 +61,8 @@ def make_map():
     player.x = x
     player.y = y
     map.fov_recompute(player)
+    # unexplored areas start black (which is the default background color)
+    libtcod.console_clear(con)
 
 
 def handle_keys():
@@ -150,7 +152,8 @@ def menu(header, options, width):
     # present the root console to the player and wait for a key-press
     libtcod.console_flush()
     key = libtcod.console_wait_for_keypress(True)
-    if key.vk == libtcod.KEY_ENTER and key.lalt:  #(special case) Alt+Enter: toggle fullscreen
+    # (special case) Alt+Enter: toggle fullscreen
+    if key.vk == libtcod.KEY_ENTER and key.lalt:
         libtcod.console_set_fullscreen(not libtcod.console_is_fullscreen())
     # convert the ASCII code to an index; if it corresponds to an option, return it
     index = key.c - ord('a')
