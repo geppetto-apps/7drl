@@ -1,7 +1,6 @@
 import libtcodpy as libtcod
 from message import message
-
-inventory = []
+from inventory import inventory
 
 
 class Fighter:

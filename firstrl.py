@@ -1,11 +1,12 @@
 import libtcodpy as libtcod
 from object import Object
 from map import Map
-from components import Fighter, inventory
+from components import Fighter, Item
 from message import game_msgs, message
 from constants import *
 from dungeon_generator import DungeonGenerator
 from envparse import env
+from inventory import inventory
 
 game_state = 'playing'
 player_action = None
@@ -229,6 +230,19 @@ def render_bar(x, y, total_width, name, value, maximum, bar_color, back_color):
     libtcod.console_print_ex(panel, x + total_width / 2, y, libtcod.BKGND_NONE, libtcod.CENTER,
                              name + ': ' + str(value) + '/' + str(maximum))
 
+# Give player some torches
+def light_torch():
+    map.torch_left = 100
+
+def give_torch():
+    item_component = Item(use_function=light_torch)
+    item = Object(0, 0, 'i', 'A torch',
+                libtcod.red, item=item_component)
+    inventory.append(item)
+
+give_torch()
+give_torch()
+give_torch()
 
 while not libtcod.console_is_window_closed():
     libtcod.console_set_default_foreground(con, libtcod.white)
@@ -246,5 +260,10 @@ while not libtcod.console_is_window_closed():
         for object in objects:
             if object != player and object.ai != None:
                 object.ai.take_turn(map, player, objects)
+        # deplete torch
+        if map.torch_left > 0:
+            map.torch_left -= 1
+            if map.torch_left == 0:
+                message('Your torch burned out', libtcod.orange)
     if player_action == 'exit':
         break

@@ -7,8 +7,10 @@ from message import message
 color_dark_wall = libtcod.Color(0, 0, 100)
 color_dark_ground = libtcod.Color(50, 50, 150)
 color_dark_wall = libtcod.Color(0, 0, 100)
+color_medium_wall = libtcod.Color(65, 55, 75)
 color_light_wall = libtcod.Color(130, 110, 50)
 color_dark_ground = libtcod.Color(50, 50, 150)
+color_medium_ground = libtcod.Color(125, 115, 100)
 color_light_ground = libtcod.Color(200, 180, 50)
 
 TORCH_RADIUS = 10
@@ -35,6 +37,7 @@ class Map:
         self.rooms = []
         self.num_rooms = 0
         self.fov_map = libtcod.map_new(self.w, self.h)
+        self.torch_left = 0
         self.tiles = [[Tile(True)
                        for y in range(self.h)]
                       for x in range(self.w)]
@@ -96,10 +99,20 @@ class Map:
                 else:
                     # it's visible
                     if wall:
+                        color = color_light_wall
+                        if self.torch_left == 0:
+                            color = color_dark_wall
+                        elif self.torch_left < 50:
+                            color = color_medium_wall
                         libtcod.console_set_char_background(
-                            con, x, y, color_light_wall, libtcod.BKGND_SET)
+                            con, x, y, color, libtcod.BKGND_SET)
                     else:
+                        color = color_light_ground
+                        if self.torch_left == 0:
+                            color = color_dark_ground
+                        elif self.torch_left < 50:
+                            color = color_medium_ground
                         libtcod.console_set_char_background(
-                            con, x, y, color_light_ground, libtcod.BKGND_SET)
+                            con, x, y, color, libtcod.BKGND_SET)
                     # since it's visible, explore it
                     self.tiles[x][y].explored = True
