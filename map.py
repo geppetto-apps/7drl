@@ -39,8 +39,8 @@ class Map:
         self.fov_map = libtcod.map_new(self.w, self.h)
         self.torch_left = 0
         self.tiles = [[Tile(True)
-                       for y in range(self.h)]
-                      for x in range(self.w)]
+                       for _ in range(self.h)]
+                      for _ in range(self.w)]
 
     def create_room(self, room):
         # go through the tiles in the rectangle and make them passable
