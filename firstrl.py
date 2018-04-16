@@ -15,6 +15,7 @@ libtcod.console_init_root(SCREEN_WIDTH, SCREEN_HEIGHT,
 con = libtcod.console_new(SCREEN_WIDTH, SCREEN_HEIGHT)
 libtcod.sys_set_fps(LIMIT_FPS)
 
+panel = libtcod.console_new(SCREEN_WIDTH, PANEL_HEIGHT)
 
 def new_game():
     global player, inventory, game_msgs, game_state
@@ -29,9 +30,6 @@ def new_game():
     make_map()
 
     game_state = 'playing'
-
-    # create the list of game messages and their colors, starts empty
-    game_msgs = []
 
     # a warm welcoming message!
     message('Welcome stranger! Prepare to perish in the Tombs of the Ancient Kings.', libtcod.red)
@@ -212,12 +210,6 @@ def render_all():
     # blit the contents of "panel" to the root console
     libtcod.console_blit(panel, 0, 0, SCREEN_WIDTH,
                          PANEL_HEIGHT, 0, 0, PANEL_Y)
-
-
-panel = libtcod.console_new(SCREEN_WIDTH, PANEL_HEIGHT)
-
-# a warm welcoming message!
-message('Welcome stranger! Prepare to perish in the Tombs of the Ancient Kings.', libtcod.red)
 
 
 def get_names_under_mouse():
