@@ -8,15 +8,33 @@ from dungeon_generator import DungeonGenerator
 from envparse import env
 from inventory import inventory
 
-game_state = 'playing'
-player_action = None
-
 libtcod.console_set_custom_font(
     'arial10x10.png', libtcod.FONT_TYPE_GREYSCALE | libtcod.FONT_LAYOUT_TCOD)
 libtcod.console_init_root(SCREEN_WIDTH, SCREEN_HEIGHT,
                           'python/libtcod tutorial', False)
 con = libtcod.console_new(SCREEN_WIDTH, SCREEN_HEIGHT)
 libtcod.sys_set_fps(LIMIT_FPS)
+
+
+def new_game():
+    global player, inventory, game_msgs, game_state
+
+    # create object representing the player
+    fighter_component = Fighter(
+        hp=30, defense=2, power=5, death_function=player_death)
+    player = Object(0, 0, '@', 'player', libtcod.white,
+                    blocks=True, fighter=fighter_component)
+
+    # generate map (at this point it's not drawn to the screen)
+    make_map()
+
+    game_state = 'playing'
+
+    # create the list of game messages and their colors, starts empty
+    game_msgs = []
+
+    # a warm welcoming message!
+    message('Welcome stranger! Prepare to perish in the Tombs of the Ancient Kings.', libtcod.red)
 
 
 def player_death(player):
@@ -30,16 +48,11 @@ def player_death(player):
     player.color = libtcod.dark_red
 
 
-# create object representing the player
-fighter_component = Fighter(
-    hp=30, defense=2, power=5, death_function=player_death)
-player = Object(0, 0, '@', 'player', libtcod.white,
-                blocks=True, fighter=fighter_component)
-objects = [player]
-
-
 def make_map():
-    global map
+    global map, objects
+
+    # the list of objects with just the player
+    objects = [player]
 
     generator = DungeonGenerator(env.int('SEED', default=None))
     map = Map(MAP_WIDTH, MAP_HEIGHT)
@@ -96,8 +109,9 @@ def handle_keys():
                     chosen_item.use()
 
             if key_char == 'd':
-                #show the inventory; if an item is selected, drop it
-                chosen_item = inventory_menu('Press the key next to an item to drop it, or any other to cancel.\n')
+                # show the inventory; if an item is selected, drop it
+                chosen_item = inventory_menu(
+                    'Press the key next to an item to drop it, or any other to cancel.\n')
                 if chosen_item is not None:
                     chosen_item.drop(player, objects)
 
@@ -199,12 +213,6 @@ panel = libtcod.console_new(SCREEN_WIDTH, PANEL_HEIGHT)
 message('Welcome stranger! Prepare to perish in the Tombs of the Ancient Kings.', libtcod.red)
 
 
-make_map()
-
-mouse = libtcod.Mouse()
-key = libtcod.Key()
-
-
 def get_names_under_mouse():
     global mouse
 
@@ -237,39 +245,50 @@ def render_bar(x, y, total_width, name, value, maximum, bar_color, back_color):
                              name + ': ' + str(value) + '/' + str(maximum))
 
 # Give player some torches
+
+
 def light_torch():
     map.torch_left = 100
+
 
 def give_torch():
     item_component = Item(use_function=light_torch)
     item = Object(0, 0, 'i', 'A torch',
-                libtcod.red, item=item_component)
+                  libtcod.red, item=item_component)
     inventory.append(item)
 
-give_torch()
-give_torch()
-give_torch()
 
-while not libtcod.console_is_window_closed():
-    libtcod.console_set_default_foreground(con, libtcod.white)
-    libtcod.sys_check_for_event(
-        libtcod.EVENT_KEY_PRESS | libtcod.EVENT_MOUSE, key, mouse)
-    render_all()
-    libtcod.console_flush()
+def play_game():
+    global key, mouse
 
-    # handle keys and exit game if needed
-    for object in objects:
-        object.clear(con)
-    player_action = handle_keys()
-    # let monsters take their turn
-    if game_state == 'playing' and player_action != 'didnt-take-turn':
+    player_action = None
+
+    mouse = libtcod.Mouse()
+    key = libtcod.Key()
+    while not libtcod.console_is_window_closed():
+        libtcod.console_set_default_foreground(con, libtcod.white)
+        libtcod.sys_check_for_event(
+            libtcod.EVENT_KEY_PRESS | libtcod.EVENT_MOUSE, key, mouse)
+        render_all()
+        libtcod.console_flush()
+
+        # handle keys and exit game if needed
         for object in objects:
-            if object != player and object.ai != None:
-                object.ai.take_turn(map, player, objects)
-        # deplete torch
-        if map.torch_left > 0:
-            map.torch_left -= 1
-            if map.torch_left == 0:
-                message('Your torch burned out', libtcod.orange)
-    if player_action == 'exit':
-        break
+            object.clear(con)
+        player_action = handle_keys()
+        # let monsters take their turn
+        if game_state == 'playing' and player_action != 'didnt-take-turn':
+            for object in objects:
+                if object != player and object.ai != None:
+                    object.ai.take_turn(map, player, objects)
+            # deplete torch
+            if map.torch_left > 0:
+                map.torch_left -= 1
+                if map.torch_left == 0:
+                    message('Your torch burned out', libtcod.orange)
+        if player_action == 'exit':
+            break
+
+
+new_game()
+play_game()
