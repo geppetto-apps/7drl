@@ -21,10 +21,7 @@ class Fighter:
             self.hp -= damage
         # check for death. if there's a death function, call it
         if self.hp <= 0:
-            level = self.level()
-            attacker.xp += self.xp_gain
-            if self.level() > level:
-                message('You leveled up!', libtcod.green)
+            attacker.grant_xp(self.xp_gain)
             function = self.death_function
             if function is not None:
                 function(self.owner)
@@ -49,6 +46,13 @@ class Fighter:
         # heal by the given amount, without going over the maximum
         self.hp += amount
         if self.hp > self.max_hp:
+            self.hp = self.max_hp
+
+    def grant_xp(self, amount):
+        level = self.level()
+        self.xp += amount
+        if self.level() > level:
+            message('You leveled up!', libtcod.green)
             self.hp = self.max_hp
 
     def level(self):
@@ -131,7 +135,7 @@ class Item:
                 inventory.remove(self.owner)
 
     def drop(self, player, objects):
-        #add to the map and remove from the player's inventory. also, place it at the player's coordinates
+        # add to the map and remove from the player's inventory. also, place it at the player's coordinates
         objects.append(self.owner)
         inventory.remove(self.owner)
         self.owner.x = player.x
