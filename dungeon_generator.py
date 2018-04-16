@@ -118,7 +118,7 @@ class DungeonGenerator:
             # zap it!
             message('A lighting bolt strikes the ' + monster.name + ' with a loud thunder! The damage is '
                     + str(LIGHTNING_DAMAGE) + ' hit points.', libtcod.light_blue)
-            monster.fighter.take_damage(LIGHTNING_DAMAGE)
+            monster.fighter.take_damage(LIGHTNING_DAMAGE, player.fighter)
 
         def cast_confuse():
             # find closest enemy in-range and confuse it

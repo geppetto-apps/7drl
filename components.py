@@ -5,21 +5,26 @@ from inventory import inventory
 
 class Fighter:
     # combat-related properties and methods (monster, player, NPC).
-    def __init__(self, hp, defense, power, xp=0, xp_gain=10, death_function=None):
+    def __init__(self, hp, defense, power, xp=0, xp_gain=25, death_function=None):
         self.owner = None
         self.max_hp = hp
         self.hp = hp
         self.xp = xp
+        self.xp_gain = xp_gain
         self.defense = defense
         self.power = power
         self.death_function = death_function
 
-    def take_damage(self, damage):
+    def take_damage(self, damage, attacker):
         # apply damage if possible
         if damage > 0:
             self.hp -= damage
         # check for death. if there's a death function, call it
         if self.hp <= 0:
+            level = self.level()
+            attacker.xp += self.xp_gain
+            if self.level() > level:
+                message('You leveled up!', libtcod.green)
             function = self.death_function
             if function is not None:
                 function(self.owner)
@@ -35,7 +40,7 @@ class Fighter:
             # make the target take some damage
             message(self.owner.name.capitalize() + ' attacks ' + target.name +
                     ' for ' + str(damage) + ' hit points.')
-            target.fighter.take_damage(damage)
+            target.fighter.take_damage(damage, self)
         else:
             message(self.owner.name.capitalize() + ' attacks ' + target.name +
                     ' but it has no effect!')
