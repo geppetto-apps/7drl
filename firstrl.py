@@ -296,9 +296,15 @@ def main_menu():
     # show the background image, at twice the regular console resolution
     libtcod.image_blit_2x(img, 0, 0, 0)
 
-    while not libtcod.console_is_window_closed():
+    while not libtcod.console_is_window_closed():  # show the game's title, and some credits!
         # show the background image, at twice the regular console resolution
         libtcod.image_blit_2x(img, 0, 0, 0)
+
+        libtcod.console_set_default_foreground(0, libtcod.light_yellow)
+        libtcod.console_print_ex(0, SCREEN_WIDTH/2, SCREEN_HEIGHT/2-4, libtcod.BKGND_NONE, libtcod.CENTER,
+                                 'WE DONT HAVE A NAME')
+        libtcod.console_print_ex(0, SCREEN_WIDTH/2, SCREEN_HEIGHT-2, libtcod.BKGND_NONE, libtcod.CENTER,
+                                 'By Quadragames')
 
         # show options and wait for the player's choice
         choice = menu(
