@@ -95,6 +95,12 @@ def handle_keys():
                 if chosen_item is not None:
                     chosen_item.use()
 
+            if key_char == 'd':
+                #show the inventory; if an item is selected, drop it
+                chosen_item = inventory_menu('Press the key next to an item to drop it, or any other to cancel.\n')
+                if chosen_item is not None:
+                    chosen_item.drop(player, objects)
+
             return 'didnt-take-turn'
 
 

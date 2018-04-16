@@ -113,3 +113,11 @@ class Item:
             if self.use_function() != 'cancelled':
                 # destroy after use, unless it was cancelled for some reason
                 inventory.remove(self.owner)
+
+    def drop(self, player, objects):
+        #add to the map and remove from the player's inventory. also, place it at the player's coordinates
+        objects.append(self.owner)
+        inventory.remove(self.owner)
+        self.owner.x = player.x
+        self.owner.y = player.y
+        message('You dropped a ' + self.owner.name + '.', libtcod.yellow)
