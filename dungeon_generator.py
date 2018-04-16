@@ -24,7 +24,7 @@ class DungeonGenerator:
         self.random = libtcod.random_new_from_seed(self.seed)
 
     def generate(self, map, objects, player):
-        for r in range(MAX_ROOMS):
+        for _ in range(MAX_ROOMS):
             # random width and height
             w = libtcod.random_get_int(
                 self.random, ROOM_MIN_SIZE, ROOM_MAX_SIZE)
@@ -179,7 +179,7 @@ class DungeonGenerator:
         # choose random number of items
         num_items = self.random_int(0, MAX_ROOM_ITEMS)
 
-        for i in range(num_items):
+        for _ in range(num_items):
             # choose random spot for this item
             x = self.random_int(room.x1+1, room.x2-1)
             y = self.random_int(room.y1+1, room.y2-1)
