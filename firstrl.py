@@ -17,6 +17,7 @@ libtcod.sys_set_fps(LIMIT_FPS)
 
 panel = libtcod.console_new(SCREEN_WIDTH, PANEL_HEIGHT)
 
+
 def new_game():
     global player, inventory, game_msgs, game_state
 
@@ -201,6 +202,12 @@ def render_all():
     # show the player's stats
     render_bar(1, 1, BAR_WIDTH, 'HP', player.fighter.hp, player.fighter.max_hp,
                libtcod.light_red, libtcod.darker_red)
+    curr_xp = player.fighter.next_xp(player.fighter.level() - 1)
+    next_xp = player.fighter.next_xp(player.fighter.level())
+    render_bar(1, 2, BAR_WIDTH, 'XP', player.fighter.xp, next_xp,
+               libtcod.light_blue, libtcod.darker_blue, minimum=curr_xp)
+    libtcod.console_print_ex(
+        panel, 1, 3, libtcod.BKGND_NONE, libtcod.LEFT, player.display_name())
 
     # display names of objects under the mouse
     libtcod.console_set_default_foreground(panel, libtcod.light_gray)
@@ -224,9 +231,11 @@ def get_names_under_mouse():
     return names.capitalize()
 
 
-def render_bar(x, y, total_width, name, value, maximum, bar_color, back_color):
+def render_bar(x, y, total_width, name, value, maximum, bar_color, back_color, minimum=0):
     # render a bar (HP, experience, etc). first calculate the width of the bar
-    bar_width = int(float(value) / maximum * total_width)
+    min = value - minimum
+    max = maximum - minimum
+    bar_width = int(float(min) / max * total_width)
 
     # render the background first
     libtcod.console_set_default_background(panel, back_color)

@@ -5,7 +5,7 @@ from inventory import inventory
 
 class Fighter:
     # combat-related properties and methods (monster, player, NPC).
-    def __init__(self, hp, defense, power, xp=0, xp_gain=25, death_function=None):
+    def __init__(self, hp, defense, power, xp=0, xp_gain=50, death_function=None):
         self.owner = None
         self.max_hp = hp
         self.hp = hp
@@ -64,6 +64,17 @@ class Fighter:
             xp += delta
             delta *= 1.1
         return level
+
+    def next_xp(self, level):
+        xp = 0
+        delta = 100
+        i = 0
+        while i < level:
+            i += + 1
+            xp += delta
+            delta *= 1.1
+        return int(xp)
+
 
 
 class BasicMonster:
