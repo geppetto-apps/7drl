@@ -1,5 +1,5 @@
 import libtcodpy as libtcod
-from components import Fighter, BasicMonster, Item
+from components import Fighter, BasicMonster, Item, ConfusedMonster
 from rect import Rect
 from message import message
 from object import Object
@@ -114,6 +114,19 @@ class DungeonGenerator:
                     + str(LIGHTNING_DAMAGE) + ' hit points.', libtcod.light_blue)
             monster.fighter.take_damage(LIGHTNING_DAMAGE)
 
+        def cast_confuse():
+            # find closest enemy in-range and confuse it
+            monster = closest_monster(ConfusedMonster.CONFUSE_RANGE)
+            if monster is None:  # no enemy found within maximum range
+                message('No enemy is close enough to confuse.', libtcod.red)
+                return 'cancelled'
+            # replace the monster's AI with a "confused" one; after some turns it will restore the old AI
+            old_ai = monster.ai
+            monster.ai = ConfusedMonster(old_ai)
+            monster.ai.owner = monster  # tell the new component who owns it
+            message('The eyes of the ' + monster.name +
+                    ' look vacant, as he starts to stumble around!', libtcod.light_green)
+
         def monster_death(monster):
             # transform it into a nasty corpse! it doesn't block, can't be
             # attacked and doesn't move
@@ -173,18 +186,21 @@ class DungeonGenerator:
 
             # only place it if the tile is not blocked
             if not map.tile_at(x, y).blocked:
+                item = None
                 if self.chance(70):
                     # create a healing potion (70 % chance)
                     item = self.place_potion(cast_heal, x, y)
-                    objects.append(item)
-                    # items appear below other objects
-                    item.send_to_back(objects)
-                else:
+                elif self.chance(50):
                     # create a lightning bolt scroll (30% chance)
                     item = self.place_bolt(cast_lightning, x, y)
-                    objects.append(item)
-                    # items appear below other objects
-                    item.send_to_back(objects)
+                else:
+                    # create a confuse scroll (15% chance)
+                    item_component = Item(use_function=cast_confuse)
+                    item = Object(x, y, '#', 'scroll of confusion',
+                                  libtcod.orange, item=item_component)
+                # items appear below other objects
+                objects.append(item)
+                item.send_to_back(objects)
 
     def place_potion(self, cast_heal, x, y):
         item_component = Item(use_function=cast_heal)
@@ -202,4 +218,3 @@ class DungeonGenerator:
     def chance(self, percent):
         dice = self.random_int(0, 100)
         return dice < 70
-
