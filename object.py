@@ -75,6 +75,11 @@ class Object:
         dy = other.y - self.y
         return math.sqrt(dx ** 2 + dy ** 2)
 
+    def display_name(self):
+        if self.fighter == None:
+            return self.name
+        return self.name + " (lvl " + str(self.fighter.level()) + ")"
+
     def draw(self, con, map):
         if libtcod.map_is_in_fov(map.fov_map, self.x, self.y):
             # set the color and then draw the character that represents this object at its position

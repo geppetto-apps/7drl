@@ -218,7 +218,7 @@ def get_names_under_mouse():
     # return a string with the names of all objects under the mouse
     (x, y) = (mouse.cx, mouse.cy)
     # create a list with the names of all objects at the mouse's coordinates and in FOV
-    names = [obj.name for obj in objects
+    names = [obj.display_name() for obj in objects
              if obj.x == x and obj.y == y and libtcod.map_is_in_fov(map.fov_map, obj.x, obj.y)]
     names = ', '.join(names)  # join the names, separated by commas
     return names.capitalize()
