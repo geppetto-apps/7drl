@@ -9,7 +9,7 @@ from envparse import env
 from inventory import inventory
 
 libtcod.console_set_custom_font(
-    'arial10x10.png', libtcod.FONT_TYPE_GREYSCALE | libtcod.FONT_LAYOUT_TCOD)
+    'sprites2.png', libtcod.FONT_LAYOUT_TCOD, 32, 8)
 libtcod.console_init_root(SCREEN_WIDTH, SCREEN_HEIGHT,
                           'python/libtcod tutorial', False)
 con = libtcod.console_new(SCREEN_WIDTH, SCREEN_HEIGHT)
