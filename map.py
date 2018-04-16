@@ -28,6 +28,7 @@ class Tile:
             block_sight = blocked
         self.block_sight = block_sight
         self.explored = False
+        self.tunnel = False
 
 
 class Map:
@@ -61,12 +62,14 @@ class Map:
         for x in range(min(x1, x2), max(x1, x2) + 1):
             self.tiles[x][y].blocked = False
             self.tiles[x][y].block_sight = False
+            self.tiles[x][y].tunnel = True
 
     def create_v_tunnel(self, y1, y2, x):
         # vertical tunnel
         for y in range(min(y1, y2), max(y1, y2) + 1):
             self.tiles[x][y].blocked = False
             self.tiles[x][y].block_sight = False
+            self.tiles[x][y].tunnel = True
 
     def set_fov(self):
         for y in range(self.h):

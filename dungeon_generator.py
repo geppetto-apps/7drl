@@ -75,6 +75,12 @@ class DungeonGenerator:
                 map.num_rooms += 1
                 # add some contents to this room, such as monsters
                 self.place_objects(map, new_room, objects, player)
+        for x in range(0, map.w):
+            for y in range(0, map.h):
+                tile = map.tiles[x][y]
+                if tile != None and tile.tunnel:
+                    tile.blocked = False
+                    tile.block_sight = False
         map.set_fov()
 
     def place_objects(self, map, room, objects, player):
