@@ -37,7 +37,7 @@ class Map:
         self.rooms = []
         self.num_rooms = 0
         self.fov_map = libtcod.map_new(self.w, self.h)
-        self.torch_left = 0
+        self.torch_left = 10000
         self.tiles = [[Tile(True)
                        for _ in range(self.h)]
                       for _ in range(self.w)]
