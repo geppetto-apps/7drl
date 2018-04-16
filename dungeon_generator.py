@@ -31,8 +31,8 @@ class DungeonGenerator:
             h = libtcod.random_get_int(
                 self.random, ROOM_MIN_SIZE, ROOM_MAX_SIZE)
             # random position without going out of the boundaries of the map
-            x = libtcod.random_get_int(self.random, 0, map.w - w - 1)
-            y = libtcod.random_get_int(self.random, 0, map.h - h - 1)
+            x = self.random_int(0, map.w - w - 1)
+            y = self.random_int(0, map.h - h - 1)
 
             # "Rect" class makes rectangles easier to work with
             new_room = Rect(x, y, w, h)
@@ -61,7 +61,7 @@ class DungeonGenerator:
                     (prev_x, prev_y) = map.rooms[map.num_rooms-1].center()
 
                     # draw a coin (random number that is either 0 or 1)
-                    if libtcod.random_get_int(self.random, 0, 1) == 1:
+                    if self.random_int(0, 1) == 1:
                         # first move horizontally, then vertically
                         map.create_h_tunnel(prev_x, new_x, prev_y)
                         map.create_v_tunnel(prev_y, new_y, new_x)
@@ -125,7 +125,7 @@ class DungeonGenerator:
             monster.ai = None
             if monster.name == 'orc':
                 # 50 % chance of dropping potion
-                if libtcod.random_get_int(self.random, 0, 100) < 50:
+                if self.chance(50):
                     message(monster.name.capitalize() +
                             ' dropped healing potion!', libtcod.light_amber)
                     item = self.place_potion(cast_heal, monster.x, monster.y)
@@ -139,13 +139,12 @@ class DungeonGenerator:
 
         for _ in range(num_monsters):
             # choose random spot for this monster
-            x = libtcod.random_get_int(self.random, room.x1 + 1, room.x2 - 1)
-            y = libtcod.random_get_int(self.random, room.y1 + 1, room.y2 - 1)
+            x = self.random_int(room.x1 + 1, room.x2 - 1)
+            y = self.random_int(room.y1 + 1, room.y2 - 1)
 
             # only place it if the tile is not blocked
             if not map.tile_at(x, y).blocked:
-                # 80% chance of getting an orc
-                if libtcod.random_get_int(self.random, 0, 100) < 80:
+                if self.chance(80):
                     # create an orc
                     fighter_component = Fighter(
                         hp=10, defense=0, power=3, death_function=monster_death)
@@ -165,17 +164,16 @@ class DungeonGenerator:
                 objects.append(monster)
 
         # choose random number of items
-        num_items = libtcod.random_get_int(self.random, 0, MAX_ROOM_ITEMS)
+        num_items = self.random_int(0, MAX_ROOM_ITEMS)
 
         for i in range(num_items):
             # choose random spot for this item
-            x = libtcod.random_get_int(self.random, room.x1+1, room.x2-1)
-            y = libtcod.random_get_int(self.random, room.y1+1, room.y2-1)
+            x = self.random_int(room.x1+1, room.x2-1)
+            y = self.random_int(room.y1+1, room.y2-1)
 
             # only place it if the tile is not blocked
             if not map.tile_at(x, y).blocked:
-                dice = libtcod.random_get_int(self.random, 0, 100)
-                if dice < 70:
+                if self.chance(70):
                     # create a healing potion (70 % chance)
                     item = self.place_potion(cast_heal, x, y)
                     objects.append(item)
@@ -197,3 +195,11 @@ class DungeonGenerator:
         item_component = Item(use_function=cast_fn)
         return Object(x, y, '#', 'scroll of lightning bolt',
                       libtcod.light_yellow, item=item_component)
+
+    def random_int(self, min, max):
+        return libtcod.random_get_int(self.random, min, max)
+
+    def chance(self, percent):
+        dice = self.random_int(0, 100)
+        return dice < 70
+
