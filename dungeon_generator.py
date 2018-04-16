@@ -13,10 +13,14 @@ MAX_ROOM_ITEMS = 2
 
 HEAL_AMOUNT = 4
 
+LIGHTNING_DAMAGE = 20
+LIGHTNING_RANGE = 5
+
 
 class DungeonGenerator:
     def __init__(self, seed=None):
         self.seed = seed or libtcod.random_get_int(0, 0, 65555)
+        print "Seed: " + str(self.seed)
         self.random = libtcod.random_new_from_seed(self.seed)
 
     def generate(self, map, objects, player):
@@ -83,6 +87,33 @@ class DungeonGenerator:
             message('Your wounds start to feel better!', libtcod.light_violet)
             player.fighter.heal(HEAL_AMOUNT)
 
+        def closest_monster(max_range):
+            # find closest enemy, up to a maximum range, and in the player's FOV
+            closest_enemy = None
+            # start with (slightly more than) maximum range
+            closest_dist = max_range + 1
+
+            for object in objects:
+                if object.fighter and not object == player and libtcod.map_is_in_fov(map.fov_map, object.x, object.y):
+                    # calculate distance between this object and the player
+                    dist = player.distance_to(object)
+                    if dist < closest_dist:  # it's closer, so remember it
+                        closest_enemy = object
+                        closest_dist = dist
+            return closest_enemy
+
+        def cast_lightning():
+            # find closest enemy (inside a maximum range) and damage it
+            monster = closest_monster(LIGHTNING_RANGE)
+            if monster is None:  # no enemy found within maximum range
+                message('No enemy is close enough to strike.', libtcod.red)
+                return 'cancelled'
+
+            # zap it!
+            message('A lighting bolt strikes the ' + monster.name + ' with a loud thunder! The damage is '
+                    + str(LIGHTNING_DAMAGE) + ' hit points.', libtcod.light_blue)
+            monster.fighter.take_damage(LIGHTNING_DAMAGE)
+
         def monster_death(monster):
             # transform it into a nasty corpse! it doesn't block, can't be
             # attacked and doesn't move
@@ -95,8 +126,10 @@ class DungeonGenerator:
             if monster.name == 'orc':
                 # 50 % chance of dropping potion
                 if libtcod.random_get_int(self.random, 0, 100) < 50:
-                    message(monster.name.capitalize() + ' dropped healing potion!', libtcod.light_amber)
-                    self.place_potion(cast_heal, monster.x, monster.y, objects)
+                    message(monster.name.capitalize() +
+                            ' dropped healing potion!', libtcod.light_amber)
+                    item = self.place_potion(cast_heal, monster.x, monster.y)
+                    objects.append(item)
             monster.name = 'remains of ' + monster.name
             monster.send_to_back(objects)
 
@@ -141,14 +174,26 @@ class DungeonGenerator:
 
             # only place it if the tile is not blocked
             if not map.tile_at(x, y).blocked:
-                self.place_potion(cast_heal, x, y, objects)
+                dice = libtcod.random_get_int(self.random, 0, 100)
+                if dice < 70:
+                    # create a healing potion (70 % chance)
+                    item = self.place_potion(cast_heal, x, y)
+                    objects.append(item)
+                    # items appear below other objects
+                    item.send_to_back(objects)
+                else:
+                    # create a lightning bolt scroll (30% chance)
+                    item = self.place_bolt(cast_lightning, x, y)
+                    objects.append(item)
+                    # items appear below other objects
+                    item.send_to_back(objects)
 
-    def place_potion(self, cast_heal, x, y, objects):
-        # create a healing potion
+    def place_potion(self, cast_heal, x, y):
         item_component = Item(use_function=cast_heal)
-        item = Object(x, y, '!', 'healing potion',
-                        libtcod.violet, item=item_component)
+        return Object(x, y, '!', 'healing potion',
+                      libtcod.violet, item=item_component)
 
-        objects.append(item)
-        item.send_to_back(objects)  # items appear below other objects
-
+    def place_bolt(self, cast_fn, x, y):
+        item_component = Item(use_function=cast_fn)
+        return Object(x, y, '#', 'scroll of lightning bolt',
+                      libtcod.light_yellow, item=item_component)
