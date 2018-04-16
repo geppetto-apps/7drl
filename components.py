@@ -76,7 +76,6 @@ class Fighter:
         return int(xp)
 
 
-
 class BasicMonster:
     def __init__(self):
         self.owner = None
