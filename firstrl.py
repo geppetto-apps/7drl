@@ -290,5 +290,25 @@ def play_game():
             break
 
 
-new_game()
-play_game()
+def main_menu():
+    img = libtcod.image_load('menu_background1.png')
+
+    # show the background image, at twice the regular console resolution
+    libtcod.image_blit_2x(img, 0, 0, 0)
+
+    while not libtcod.console_is_window_closed():
+        # show the background image, at twice the regular console resolution
+        libtcod.image_blit_2x(img, 0, 0, 0)
+
+        # show options and wait for the player's choice
+        choice = menu(
+            '', ['Play a new game', 'Continue last game', 'Quit'], 24)
+
+        if choice == 0:  # new game
+            new_game()
+            play_game()
+        elif choice == 2:  # quit
+            break
+
+
+main_menu()
