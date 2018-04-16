@@ -1,9 +1,11 @@
 import libtcodpy as libtcod
 from object import Object
 from map import Map
-from components import Fighter
+from components import Fighter, inventory
 from message import game_msgs, message
 from constants import *
+from dungeon_generator import DungeonGenerator
+from envparse import env
 
 game_state = 'playing'
 player_action = None
@@ -38,8 +40,9 @@ objects = [player]
 def make_map():
     global map
 
+    generator = DungeonGenerator(env.int('SEED', default=None))
     map = Map(MAP_WIDTH, MAP_HEIGHT)
-    map.generate(objects)
+    generator.generate(map, objects, player)
     (x, y) = map.rooms[0].center()
     player.x = x
     player.y = y
@@ -48,7 +51,6 @@ def make_map():
 
 def handle_keys():
     global player
-    key = libtcod.console_wait_for_keypress(True)
     if key.vk == libtcod.KEY_ENTER and key.lalt:
         # Alt+Enter: toggle fullscreen
         libtcod.console_set_fullscreen(not libtcod.console_is_fullscreen())
@@ -58,24 +60,92 @@ def handle_keys():
 
     if game_state == 'playing':
         # movement keys
-        if libtcod.console_is_key_pressed(libtcod.KEY_UP):
+        if key.vk == libtcod.KEY_UP:
             player.move_or_attack(0, -1, map, objects)
             map.fov_recompute(player)
 
-        elif libtcod.console_is_key_pressed(libtcod.KEY_DOWN):
+        elif key.vk == libtcod.KEY_DOWN:
             player.move_or_attack(0, 1, map, objects)
             map.fov_recompute(player)
 
-        elif libtcod.console_is_key_pressed(libtcod.KEY_LEFT):
+        elif key.vk == libtcod.KEY_LEFT:
             player.move_or_attack(-1, 0, map, objects)
             map.fov_recompute(player)
 
-        elif libtcod.console_is_key_pressed(libtcod.KEY_RIGHT):
+        elif key.vk == libtcod.KEY_RIGHT:
             player.move_or_attack(1, 0, map, objects)
             map.fov_recompute(player)
 
         else:
+            # test for other keys
+            key_char = chr(key.c)
+
+            if key_char == 'g':
+                # pick up an item
+                for object in objects:  # look for an item in the player's tile
+                    if object.x == player.x and object.y == player.y and object.item:
+                        object.item.pick_up(objects)
+                        break
+
+            if key_char == 'i':
+                # show the inventory; if an item is selected, use it
+                chosen_item = inventory_menu(
+                    'Press the key next to an item to use it, or any other to cancel.\n')
+                if chosen_item is not None:
+                    chosen_item.use()
+
             return 'didnt-take-turn'
+
+
+def menu(header, options, width):
+    if len(options) > 26:
+        raise ValueError('Cannot have a menu with more than 26 options.')
+    # calculate total height for the header (after auto-wrap) and one line per option
+    header_height = libtcod.console_get_height_rect(
+        con, 0, 0, width, SCREEN_HEIGHT, header)
+    height = len(options) + header_height
+    # create an off-screen console that represents the menu's window
+    window = libtcod.console_new(width, height)
+
+    # print the header, with auto-wrap
+    libtcod.console_set_default_foreground(window, libtcod.white)
+    libtcod.console_print_rect_ex(
+        window, 0, 0, width, height, libtcod.BKGND_NONE, libtcod.LEFT, header)
+    # print all the options
+    y = header_height
+    letter_index = ord('a')
+    for option_text in options:
+        text = '(' + chr(letter_index) + ') ' + option_text
+        libtcod.console_print_ex(
+            window, 0, y, libtcod.BKGND_NONE, libtcod.LEFT, text)
+        y += 1
+        letter_index += 1
+    # blit the contents of "window" to the root console
+    x = SCREEN_WIDTH/2 - width/2
+    y = SCREEN_HEIGHT/2 - height/2
+    libtcod.console_blit(window, 0, 0, width, height, 0, x, y, 1.0, 0.7)
+    # present the root console to the player and wait for a key-press
+    libtcod.console_flush()
+    key = libtcod.console_wait_for_keypress(True)
+    # convert the ASCII code to an index; if it corresponds to an option, return it
+    index = key.c - ord('a')
+    if index >= 0 and index < len(options):
+        return index
+    return None
+
+
+def inventory_menu(header):
+    # show a menu with each item of the inventory as an option
+    if len(inventory) == 0:
+        options = ['Inventory is empty.']
+    else:
+        options = [item.name for item in inventory]
+
+    index = menu(header, options, INVENTORY_WIDTH)
+    # if an item was chosen, return it
+    if index is None or len(inventory) == 0:
+        return None
+    return inventory[index].item
 
 
 def render_all():
@@ -106,6 +176,11 @@ def render_all():
     render_bar(1, 1, BAR_WIDTH, 'HP', player.fighter.hp, player.fighter.max_hp,
                libtcod.light_red, libtcod.darker_red)
 
+    # display names of objects under the mouse
+    libtcod.console_set_default_foreground(panel, libtcod.light_gray)
+    libtcod.console_print_ex(
+        panel, 1, 0, libtcod.BKGND_NONE, libtcod.LEFT, get_names_under_mouse())
+
     # blit the contents of "panel" to the root console
     libtcod.console_blit(panel, 0, 0, SCREEN_WIDTH,
                          PANEL_HEIGHT, 0, 0, PANEL_Y)
@@ -118,6 +193,21 @@ message('Welcome stranger! Prepare to perish in the Tombs of the Ancient Kings.'
 
 
 make_map()
+
+mouse = libtcod.Mouse()
+key = libtcod.Key()
+
+
+def get_names_under_mouse():
+    global mouse
+
+    # return a string with the names of all objects under the mouse
+    (x, y) = (mouse.cx, mouse.cy)
+    # create a list with the names of all objects at the mouse's coordinates and in FOV
+    names = [obj.name for obj in objects
+             if obj.x == x and obj.y == y and libtcod.map_is_in_fov(map.fov_map, obj.x, obj.y)]
+    names = ', '.join(names)  # join the names, separated by commas
+    return names.capitalize()
 
 
 def render_bar(x, y, total_width, name, value, maximum, bar_color, back_color):
@@ -142,6 +232,8 @@ def render_bar(x, y, total_width, name, value, maximum, bar_color, back_color):
 
 while not libtcod.console_is_window_closed():
     libtcod.console_set_default_foreground(con, libtcod.white)
+    libtcod.sys_check_for_event(
+        libtcod.EVENT_KEY_PRESS | libtcod.EVENT_MOUSE, key, mouse)
     render_all()
     libtcod.console_flush()
 

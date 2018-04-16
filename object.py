@@ -5,7 +5,7 @@ import math
 class Object:
     # this is a generic object: the player, a monster, an item, the stairs...
     # it's always represented by a character on screen.
-    def __init__(self, x, y, char, name, color, blocks=False, fighter=None, ai=None):
+    def __init__(self, x, y, char, name, color, blocks=False, fighter=None, ai=None, item=None):
         self.x = x
         self.y = y
         self.char = char
@@ -19,6 +19,9 @@ class Object:
         self.ai = ai
         if self.ai:  # let the AI component know who owns it
             self.ai.owner = self
+        self.item = item
+        if self.item:  # let the Item component know who owns it
+            self.item.owner = self
 
     def move_or_attack(self, dx, dy, map, objects):
         # the coordinates the player is moving to/attacking

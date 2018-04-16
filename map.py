@@ -11,16 +11,9 @@ color_light_wall = libtcod.Color(130, 110, 50)
 color_dark_ground = libtcod.Color(50, 50, 150)
 color_light_ground = libtcod.Color(200, 180, 50)
 
-
-ROOM_MAX_SIZE = 10
-ROOM_MIN_SIZE = 6
-MAX_ROOMS = 30
-
+TORCH_RADIUS = 10
 FOV_ALGO = 0  # default FOV algorithm
 FOV_LIGHT_WALLS = True
-TORCH_RADIUS = 10
-
-MAX_ROOM_MONSTERS = 10
 
 
 class Tile:
@@ -52,6 +45,14 @@ class Map:
             for y in range(room.y1 + 1, room.y2):
                 self.tiles[x][y].blocked = False
                 self.tiles[x][y].block_sight = False
+        self.tiles[room.x1 + 1][room.y1 + 1].blocked = True
+        self.tiles[room.x1 + 1][room.y1 + 1].block_sight = True
+        self.tiles[room.x1 + 1][room.y2 - 1].blocked = True
+        self.tiles[room.x1 + 1][room.y2 - 1].block_sight = True
+        self.tiles[room.x2 - 1][room.y1 + 1].blocked = True
+        self.tiles[room.x2 - 1][room.y1 + 1].block_sight = True
+        self.tiles[room.x2 - 1][room.y2 - 1].blocked = True
+        self.tiles[room.x2 - 1][room.y2 - 1].block_sight = True
 
     def create_h_tunnel(self, x1, x2, y):
         for x in range(min(x1, x2), max(x1, x2) + 1):
@@ -63,100 +64,6 @@ class Map:
         for y in range(min(y1, y2), max(y1, y2) + 1):
             self.tiles[x][y].blocked = False
             self.tiles[x][y].block_sight = False
-
-    def generate(self, objects):
-        for r in range(MAX_ROOMS):
-            # random width and height
-            w = libtcod.random_get_int(0, ROOM_MIN_SIZE, ROOM_MAX_SIZE)
-            h = libtcod.random_get_int(0, ROOM_MIN_SIZE, ROOM_MAX_SIZE)
-            # random position without going out of the boundaries of the map
-            x = libtcod.random_get_int(0, 0, self.w - w - 1)
-            y = libtcod.random_get_int(0, 0, self.h - h - 1)
-
-            # "Rect" class makes rectangles easier to work with
-            new_room = Rect(x, y, w, h)
-
-            # run through the other rooms and see if they intersect with this one
-            failed = False
-            for other_room in self.rooms:
-                if new_room.intersect(other_room):
-                    failed = True
-                    break
-
-            if not failed:
-                # this means there are no intersections, so this room is valid
-
-                # "paint" it to the map's tiles
-                self.create_room(new_room)
-
-                # center coordinates of new room, will be useful later
-                (new_x, new_y) = new_room.center()
-
-                if self.num_rooms != 0:
-                    # all rooms after the first:
-                    # connect it to the previous room with a tunnel
-
-                    # center coordinates of previous room
-                    (prev_x, prev_y) = self.rooms[self.num_rooms-1].center()
-
-                    # draw a coin (random number that is either 0 or 1)
-                    if libtcod.random_get_int(0, 0, 1) == 1:
-                        # first move horizontally, then vertically
-                        self.create_h_tunnel(prev_x, new_x, prev_y)
-                        self.create_v_tunnel(prev_y, new_y, new_x)
-                    else:
-                        # first move vertically, then horizontally
-                        self.create_v_tunnel(prev_y, new_y, prev_x)
-                        self.create_h_tunnel(prev_x, new_x, new_y)
-
-                # finally, append the new room to the list
-                self.rooms.append(new_room)
-                self.num_rooms += 1
-                # add some contents to this room, such as monsters
-                self.place_objects(new_room, objects)
-        self.set_fov()
-
-    def place_objects(self, room, objects):
-        def monster_death(monster):
-            # transform it into a nasty corpse! it doesn't block, can't be
-            # attacked and doesn't move
-            message(monster.name.capitalize() + ' is dead!', libtcod.green)
-            monster.char = '%'
-            monster.color = libtcod.dark_red
-            monster.blocks = False
-            monster.fighter = None
-            monster.ai = None
-            monster.name = 'remains of ' + monster.name
-            monster.send_to_back(objects)
-
-        # choose random number of monsters
-        num_monsters = libtcod.random_get_int(0, 0, MAX_ROOM_MONSTERS)
-
-        for _ in range(num_monsters):
-            # choose random spot for this monster
-            x = libtcod.random_get_int(0, room.x1 + 1, room.x2 - 1)
-            y = libtcod.random_get_int(0, room.y1 + 1, room.y2 - 1)
-
-            # 80% chance of getting an orc
-            # 80% chance of getting an orc
-            if libtcod.random_get_int(0, 0, 100) < 80:
-                # create an orc
-                fighter_component = Fighter(
-                    hp=10, defense=0, power=3, death_function=monster_death)
-                ai_component = BasicMonster()
-
-                monster = Object(x, y, 'o', 'orc', libtcod.desaturated_green,
-                                 blocks=True, fighter=fighter_component, ai=ai_component)
-            else:
-                # create a troll
-                fighter_component = Fighter(
-                    hp=16, defense=1, power=4, death_function=monster_death)
-                ai_component = BasicMonster()
-
-                monster = Object(x, y, 'T', 'troll', libtcod.darker_green,
-                                 blocks=True, fighter=fighter_component, ai=ai_component)
-
-            objects.append(monster)
 
     def set_fov(self):
         for y in range(self.h):
