@@ -8,6 +8,7 @@ from dungeon_generator import DungeonGenerator
 from envparse import env
 from inventory import inventory
 import tiles
+import dill
 
 libtcod.console_set_custom_font(
     'sprites.png', libtcod.FONT_LAYOUT_ASCII_INROW)
@@ -294,7 +295,42 @@ def play_game():
                 if map.torch_left == 0:
                     message('Your torch burned out', libtcod.orange)
         if player_action == 'exit':
+            save_game()
             break
+
+
+def save_game():
+    global map, objects
+    file = open('savegame', 'wb')
+    data = {}
+    data['map'] = map
+    data['objects'] = objects
+    data['player_index'] = objects.index(player)
+    data['inventory'] = inventory
+    data['game_msgs'] = game_msgs
+    data['game_state'] = game_state
+    print data
+    dill.dump(data, file)
+    file.close()
+
+
+def load_game():
+    global map, objects, player, inventory, game_msgs, game_state
+    file = open('savegame', 'rb')
+    data = dill.load(file)
+    file.close()
+    print data
+    map = data['map']
+    objects = data['objects']
+    player = objects[data['player_index']]
+    inventory = data['inventory']
+    game_msgs = data['game_msgs']
+    game_state = data['game_state']
+
+    # Reset FOV after loading game
+    map.fov_map = libtcod.map_new(map.w, map.h)
+    map.set_fov()
+    map.fov_recompute(player)
 
 
 def main_menu():
@@ -320,6 +356,9 @@ def main_menu():
 
         if choice == 0:  # new game
             new_game()
+            play_game()
+        elif choice == 1:  # load game
+            load_game()
             play_game()
         elif choice == 2:  # quit
             break

@@ -3,6 +3,7 @@ from rect import Rect
 from object import Object
 from components import Fighter, BasicMonster
 from message import message
+from constants import *
 import tiles
 
 color_dark_wall = libtcod.Color(0, 0, 100)
@@ -13,10 +14,6 @@ color_light_wall = libtcod.Color(130, 110, 50)
 color_dark_ground = libtcod.Color(50, 50, 150)
 color_medium_ground = libtcod.Color(125, 115, 100)
 color_light_ground = libtcod.Color(200, 180, 50)
-
-TORCH_RADIUS = 10
-FOV_ALGO = 0  # default FOV algorithm
-FOV_LIGHT_WALLS = True
 
 
 class Tile:
