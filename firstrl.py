@@ -301,12 +301,11 @@ def play_game():
 def main_menu():
     img = libtcod.image_load('menu_background1.png')
 
-    # show the background image, at twice the regular console resolution
-    libtcod.image_blit_2x(img, 0, 0, 0)
-
     while not libtcod.console_is_window_closed():  # show the game's title, and some credits!
+        libtcod.console_clear(0)
+
         # show the background image, at twice the regular console resolution
-        libtcod.image_blit_2x(img, 0, 0, 0)
+        libtcod.image_blit_rect(img, 0, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, libtcod.BKGND_SET)
 
         libtcod.console_set_default_foreground(0, libtcod.light_yellow)
         libtcod.console_print_ex(0, SCREEN_WIDTH/2, SCREEN_HEIGHT/2-4, libtcod.BKGND_NONE, libtcod.CENTER,
