@@ -74,27 +74,26 @@ def handle_keys():
         return 'exit'  # exit game
 
     if game_state == 'playing':
+        key_char = chr(key.c)
         # movement keys
-        if key.vk == libtcod.KEY_UP:
+        if key.vk == libtcod.KEY_UP or key_char == 'w':
             player.move_or_attack(0, -1, map, objects)
             map.fov_recompute(player)
 
-        elif key.vk == libtcod.KEY_DOWN:
+        elif key.vk == libtcod.KEY_DOWN or key_char == 's':
             player.move_or_attack(0, 1, map, objects)
             map.fov_recompute(player)
 
-        elif key.vk == libtcod.KEY_LEFT:
+        elif key.vk == libtcod.KEY_LEFT or key_char == 'a':
             player.move_or_attack(-1, 0, map, objects)
             map.fov_recompute(player)
 
-        elif key.vk == libtcod.KEY_RIGHT:
+        elif key.vk == libtcod.KEY_RIGHT or key_char == 'd':
             player.move_or_attack(1, 0, map, objects)
             map.fov_recompute(player)
 
         else:
             # test for other keys
-            key_char = chr(key.c)
-
             if key_char == 'g':
                 # pick up an item
                 for object in objects:  # look for an item in the player's tile
@@ -305,7 +304,8 @@ def main_menu():
         libtcod.console_clear(0)
 
         # show the background image, at twice the regular console resolution
-        libtcod.image_blit_rect(img, 0, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, libtcod.BKGND_SET)
+        libtcod.image_blit_rect(
+            img, 0, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, libtcod.BKGND_SET)
 
         libtcod.console_set_default_foreground(0, libtcod.light_yellow)
         libtcod.console_print_ex(0, SCREEN_WIDTH/2, SCREEN_HEIGHT/2-4, libtcod.BKGND_NONE, libtcod.CENTER,
