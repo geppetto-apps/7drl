@@ -3,6 +3,7 @@ from rect import Rect
 from object import Object
 from components import Fighter, BasicMonster
 from message import message
+import tiles
 
 color_dark_wall = libtcod.Color(0, 0, 100)
 color_dark_ground = libtcod.Color(50, 50, 150)
@@ -94,28 +95,28 @@ class Map:
                     if self.tiles[x][y].explored:
                         # it's out of the player's FOV
                         if wall:
-                            libtcod.console_set_char_background(
-                                con, x, y, color_dark_wall, libtcod.BKGND_SET)
+                            libtcod.console_put_char_ex(
+                                con, x, y, tiles.wall_tile, libtcod.darker_gray, libtcod.black)
                         else:
-                            libtcod.console_set_char_background(
-                                con, x, y, color_dark_ground, libtcod.BKGND_SET)
+                            libtcod.console_put_char_ex(
+                                con, x, y, tiles.floor_tile, libtcod.darker_gray, libtcod.black)
                 else:
                     # it's visible
                     if wall:
-                        color = color_light_wall
+                        tint = libtcod.white
                         if self.torch_left == 0:
-                            color = color_dark_wall
+                            tint = libtcod.gray
                         elif self.torch_left < 50:
-                            color = color_medium_wall
-                        libtcod.console_set_char_background(
-                            con, x, y, color, libtcod.BKGND_SET)
+                            tint = libtcod.dark_gray
+                        libtcod.console_put_char_ex(
+                            con, x, y, tiles.wall_tile, tint, libtcod.black)
                     else:
-                        color = color_light_ground
+                        tint = libtcod.white
                         if self.torch_left == 0:
-                            color = color_dark_ground
+                            tint = libtcod.gray
                         elif self.torch_left < 50:
-                            color = color_medium_ground
-                        libtcod.console_set_char_background(
-                            con, x, y, color, libtcod.BKGND_SET)
+                            tint = libtcod.dark_gray
+                        libtcod.console_put_char_ex(
+                            con, x, y, tiles.floor_tile, tint, libtcod.black)
                     # since it's visible, explore it
                     self.tiles[x][y].explored = True

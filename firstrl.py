@@ -7,9 +7,10 @@ from constants import *
 from dungeon_generator import DungeonGenerator
 from envparse import env
 from inventory import inventory
+import tiles
 
 libtcod.console_set_custom_font(
-    'sprites2.png', libtcod.FONT_LAYOUT_TCOD, 32, 8)
+    'sprites.png', libtcod.FONT_LAYOUT_ASCII_INROW)
 libtcod.console_init_root(SCREEN_WIDTH, SCREEN_HEIGHT,
                           'python/libtcod tutorial', False)
 con = libtcod.console_new(SCREEN_WIDTH, SCREEN_HEIGHT)
@@ -24,7 +25,7 @@ def new_game():
     # create object representing the player
     fighter_component = Fighter(
         hp=30, defense=2, power=5, death_function=player_death)
-    player = Object(0, 0, '@', 'player', libtcod.white,
+    player = Object(0, 0, tiles.player_tile, 'player', libtcod.white,
                     blocks=True, fighter=fighter_component)
 
     # generate map (at this point it's not drawn to the screen)
@@ -43,8 +44,7 @@ def player_death(player):
     game_state = 'dead'
 
     # for added effect, transform the player into a corpse!
-    player.char = '%'
-    player.color = libtcod.dark_red
+    player.char = tiles.tomb_tile
 
 
 def make_map():
@@ -176,11 +176,11 @@ def inventory_menu(header):
 
 
 def render_all():
+    map.draw(con)
     for object in objects:
         if object != player:
             object.draw(con, map)
     player.draw(con, map)
-    map.draw(con)
     # show the player's stats
     libtcod.console_set_default_foreground(con, libtcod.white)
     libtcod.console_print_ex(con, 1, SCREEN_HEIGHT - 2, libtcod.BKGND_NONE, libtcod.LEFT,

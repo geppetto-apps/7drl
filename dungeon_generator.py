@@ -3,6 +3,7 @@ from components import Fighter, BasicMonster, Item, ConfusedMonster
 from rect import Rect
 from message import message
 from object import Object
+import tiles
 
 ROOM_MAX_SIZE = 10
 ROOM_MIN_SIZE = 6
@@ -137,8 +138,8 @@ class DungeonGenerator:
             # transform it into a nasty corpse! it doesn't block, can't be
             # attacked and doesn't move
             message(monster.name.capitalize() + ' is dead!', libtcod.green)
-            monster.char = '%'
-            monster.color = libtcod.dark_red
+            monster.char = tiles.tomb_tile
+            monster.color = libtcod.white
             monster.blocks = False
             monster.fighter = None
             monster.ai = None
@@ -169,7 +170,7 @@ class DungeonGenerator:
                         hp=10, defense=0, power=3, death_function=monster_death)
                     ai_component = BasicMonster()
 
-                    monster = Object(x, y, 'o', 'orc', libtcod.desaturated_green,
+                    monster = Object(x, y, tiles.orc_tile, 'orc', libtcod.desaturated_green,
                                      blocks=True, fighter=fighter_component, ai=ai_component)
                 else:
                     # create a troll
@@ -177,7 +178,7 @@ class DungeonGenerator:
                         hp=16, defense=1, power=4, death_function=monster_death)
                     ai_component = BasicMonster()
 
-                    monster = Object(x, y, 'T', 'troll', libtcod.darker_green,
+                    monster = Object(x, y, tiles.troll_tile, 'troll', libtcod.darker_green,
                                      blocks=True, fighter=fighter_component, ai=ai_component)
 
                 objects.append(monster)
@@ -202,7 +203,7 @@ class DungeonGenerator:
                 else:
                     # create a confuse scroll (15% chance)
                     item_component = Item(use_function=cast_confuse)
-                    item = Object(x, y, '#', 'scroll of confusion',
+                    item = Object(x, y, tiles.scroll_tile, 'scroll of confusion',
                                   libtcod.orange, item=item_component)
                 # items appear below other objects
                 objects.append(item)
@@ -210,13 +211,13 @@ class DungeonGenerator:
 
     def place_potion(self, cast_heal, x, y):
         item_component = Item(use_function=cast_heal)
-        return Object(x, y, '!', 'healing potion',
-                      libtcod.violet, item=item_component)
+        return Object(x, y, tiles.healingpotion_tile, 'healing potion',
+                      libtcod.white, item=item_component)
 
     def place_bolt(self, cast_fn, x, y):
         item_component = Item(use_function=cast_fn)
-        return Object(x, y, '#', 'scroll of lightning bolt',
-                      libtcod.light_yellow, item=item_component)
+        return Object(x, y, tiles.scroll_tile, 'scroll of lightning bolt',
+                      libtcod.white, item=item_component)
 
     def random_int(self, min, max):
         return libtcod.random_get_int(self.random, min, max)
