@@ -307,9 +307,10 @@ def main_menu():
         libtcod.image_blit_rect(
             img, 0, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, libtcod.BKGND_SET)
 
-        libtcod.console_set_default_foreground(0, libtcod.light_yellow)
+        libtcod.console_set_default_foreground(0, libtcod.dark_orange)
         libtcod.console_print_ex(0, SCREEN_WIDTH/2, SCREEN_HEIGHT/2-4, libtcod.BKGND_NONE, libtcod.CENTER,
-                                 'WE DONT HAVE A NAME')
+                                 'Tower of the Brave')
+        libtcod.console_set_default_foreground(0, libtcod.light_amber)
         libtcod.console_print_ex(0, SCREEN_WIDTH/2, SCREEN_HEIGHT-2, libtcod.BKGND_NONE, libtcod.CENTER,
                                  'By Quadragames')
 
