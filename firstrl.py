@@ -300,7 +300,7 @@ def play_game():
                 if map.torch_left == 0:
                     message('Your torch burned out', libtcod.orange)
         if player_action == 'exit':
-            save_game()
+            # save_game()
             break
 
 
