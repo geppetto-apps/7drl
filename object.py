@@ -45,6 +45,9 @@ class Object:
         else:
             self.move(x, y, map)
 
+    def move_by(self, dx, dy, map):
+        self.move(self.x + dx, self.y + dy, map)
+
     def move(self, x, y, map):
         for object in map.objects:
             if object.x == x and object.y == y and object.blocks:

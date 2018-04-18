@@ -109,7 +109,7 @@ class ConfusedMonster:
             # move in a random direction, and decrease the number of turns confused
             dx = libtcod.random_get_int(0, -1, 1)
             dy = libtcod.random_get_int(0, -1, 1)
-            self.owner.move(dx, dy, map)
+            self.owner.move_by(dx, dy, map)
             self.num_turns -= 1
         # restore the previous AI (this one will be deleted because it's not referenced anymore)
         else:
