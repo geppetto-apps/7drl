@@ -13,6 +13,7 @@ class Object:
         self.name = name
         self.fighter = fighter
         self.blocks = blocks
+        self.inventory = []
         if self.fighter:  # let the fighter component know who owns it
             self.fighter.owner = self
 

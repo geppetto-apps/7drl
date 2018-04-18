@@ -1,6 +1,5 @@
 import libtcodpy as libtcod
 from message import message
-from inventory import inventory
 
 
 class Fighter:
@@ -125,29 +124,29 @@ class Item:
         self.use_function = use_function
 
     # an item that can be picked up and used.
-    def pick_up(self, objects):
+    def pick_up(self, objects, player):
         # add to the player's inventory and remove from the map
-        if len(inventory) >= 26:
+        if len(player.inventory) >= 26:
             message('Your inventory is full, cannot pick up ' +
                     self.owner.name + '.', libtcod.red)
         else:
-            inventory.append(self.owner)
+            player.inventory.append(self.owner)
             objects.remove(self.owner)
             message('You picked up a ' + self.owner.name + '!', libtcod.green)
 
-    def use(self):
+    def use(self, player):
         # just call the "use_function" if it is defined
         if self.use_function is None:
             message('The ' + self.owner.name + ' cannot be used.')
         else:
             if self.use_function() != 'cancelled':
                 # destroy after use, unless it was cancelled for some reason
-                inventory.remove(self.owner)
+                player.inventory.remove(self.owner)
 
     def drop(self, player, objects):
         # add to the map and remove from the player's inventory. also, place it at the player's coordinates
         objects.append(self.owner)
-        inventory.remove(self.owner)
+        player.inventory.remove(self.owner)
         self.owner.x = player.x
         self.owner.y = player.y
         message('You dropped a ' + self.owner.name + '.', libtcod.yellow)

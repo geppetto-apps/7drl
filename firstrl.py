@@ -6,7 +6,6 @@ from message import game_msgs, message
 from constants import *
 from dungeon_generator import DungeonGenerator
 from envparse import env
-from inventory import inventory
 import tiles
 import dill
 
@@ -99,7 +98,7 @@ def handle_keys():
                 # pick up an item
                 for object in objects:  # look for an item in the player's tile
                     if object.x == player.x and object.y == player.y and object.item:
-                        object.item.pick_up(objects)
+                        object.item.pick_up(objects, player)
                         break
 
             # test for other keys
@@ -115,7 +114,7 @@ def handle_keys():
                 chosen_item = inventory_menu(
                     'Press the key next to an item to use it, or any other to cancel.\n')
                 if chosen_item is not None:
-                    chosen_item.use()
+                    chosen_item.use(player)
 
             if key_char == 'd':
                 # show the inventory; if an item is selected, drop it
@@ -170,6 +169,7 @@ def menu(header, options, width):
 
 
 def inventory_menu(header):
+    inventory = player.inventory
     # show a menu with each item of the inventory as an option
     if len(inventory) == 0:
         options = ['Inventory is empty.']
@@ -271,7 +271,7 @@ def give_torch():
     item_component = Item(use_function=light_torch)
     item = Object(0, 0, 'i', 'A torch',
                   libtcod.red, item=item_component)
-    inventory.append(item)
+    player.inventory.append(item)
 
 
 def play_game():
@@ -314,7 +314,6 @@ def save_game():
     data['map'] = map
     data['objects'] = objects
     data['player_index'] = objects.index(player)
-    data['inventory'] = inventory
     data['game_msgs'] = game_msgs
     data['game_state'] = game_state
     print data
@@ -323,7 +322,7 @@ def save_game():
 
 
 def load_game():
-    global map, objects, player, inventory, game_msgs, game_state
+    global map, objects, player, game_msgs, game_state
     file = open('savegame', 'rb')
     data = dill.load(file)
     file.close()
@@ -331,7 +330,6 @@ def load_game():
     map = data['map']
     objects = data['objects']
     player = objects[data['player_index']]
-    inventory = data['inventory']
     game_msgs = data['game_msgs']
     game_state = data['game_state']
 
