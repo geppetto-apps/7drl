@@ -73,10 +73,14 @@ class Object:
         dy = int(round(dy / distance))
         self.move(self.x + dx, self.y + dy, map)
 
-    def distance_to(self, other):
+    def distance_to(self, x, y=None):
+        if y == None:
+            other = x
+            x = other.x
+            y = other.y
         # return the distance to another object
-        dx = other.x - self.x
-        dy = other.y - self.y
+        dx = x - self.x
+        dy = y - self.y
         return math.sqrt(dx ** 2 + dy ** 2)
 
     def display_name(self):
