@@ -182,18 +182,23 @@ class DungeonGenerator:
 
             # only place it if the tile is not blocked
             if not map.tile_at(x, y).blocked:
+                distance = player.distance_to(x, y)
                 if self.chance(80):
                     # create an orc
+                    defense = 0
+                    power = 2 + int(distance / 15)
                     fighter_component = Fighter(
-                        hp=10, defense=0, power=3, death_function=monster_death)
+                        hp=10, defense=defense, power=power, death_function=monster_death)
                     ai_component = BasicMonster()
 
                     monster = Object(x, y, tiles.orc_tile, 'orc', libtcod.desaturated_green,
                                      blocks=True, fighter=fighter_component, ai=ai_component)
                 else:
                     # create a troll
+                    defense = 1 + int(distance / 20)
+                    power = 4 + int(distance / 15)
                     fighter_component = Fighter(
-                        hp=16, defense=1, power=4, death_function=monster_death)
+                        hp=16, defense=defense, power=power, death_function=monster_death)
                     ai_component = BasicMonster()
 
                     monster = Object(x, y, tiles.troll_tile, 'troll', libtcod.darker_green,
