@@ -93,6 +93,9 @@ class DungeonGenerator:
         map.objects.append(ladder)
 
 
+        (x, y) = map.rooms[0].center()
+        player.x = x
+        player.y = y
         for i in range(map.num_rooms):
             # add some contents to this room, such as monsters
             room = map.rooms[i]

@@ -56,9 +56,6 @@ def make_map():
     map = Map(MAP_WIDTH, MAP_HEIGHT)
     map.objects.append(player)
     generator.generate(map, player)
-    (x, y) = map.rooms[0].center()
-    player.x = x
-    player.y = y
     map.fov_recompute(player)
     # unexplored areas start black (which is the default background color)
     libtcod.console_clear(con)
