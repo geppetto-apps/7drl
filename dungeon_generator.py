@@ -247,4 +247,4 @@ class DungeonGenerator:
 
     def chance(self, percent):
         dice = self.random_int(0, 100)
-        return dice < 70
+        return dice < percent
