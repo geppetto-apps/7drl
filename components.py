@@ -151,3 +151,12 @@ class Item:
         self.owner.x = player.x
         self.owner.y = player.y
         message('You dropped a ' + self.owner.name + '.', libtcod.yellow)
+
+class Ladder:
+    def __init__(self, use_function):
+        self.owner = None
+        self.use_function = use_function
+
+    # an item that can be picked up and used.
+    def ascend(self, objects):
+        self.use_function()

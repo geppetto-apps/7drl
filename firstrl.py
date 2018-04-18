@@ -102,6 +102,14 @@ def handle_keys():
                         object.item.pick_up(objects)
                         break
 
+            # test for other keys
+            if key_char == '<':
+                # pick up an item
+                for object in objects:  # look for an item in the player's tile
+                    if object.x == player.x and object.y == player.y and object.ladder:
+                        object.ladder.ascend(map)
+                        break
+
             if key_char == 'i':
                 # show the inventory; if an item is selected, use it
                 chosen_item = inventory_menu(

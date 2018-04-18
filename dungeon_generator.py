@@ -1,5 +1,5 @@
 import libtcodpy as libtcod
-from components import Fighter, BasicMonster, Item, ConfusedMonster
+from components import Fighter, BasicMonster, Item, ConfusedMonster, Ladder
 from rect import Rect
 from message import message
 from object import Object
@@ -74,14 +74,29 @@ class DungeonGenerator:
                 # finally, append the new room to the list
                 map.rooms.append(new_room)
                 map.num_rooms += 1
-                # add some contents to this room, such as monsters
-                self.place_objects(map, new_room, objects, player)
         for x in range(0, map.w):
             for y in range(0, map.h):
                 tile = map.tiles[x][y]
                 if tile != None and tile.tunnel:
                     tile.blocked = False
                     tile.block_sight = False
+        n = self.random_int(0, map.num_rooms-1)
+        exit_room = map.rooms[n]
+        # choose random spot for the ladder
+        x = self.random_int(exit_room.x1 + 1, exit_room.x2 - 1)
+        y = self.random_int(exit_room.y1 + 1, exit_room.y2 - 1)
+        # create a ladder
+        def ascend():
+            print("ascending!")
+        ladder_component = Ladder(ascend)
+        ladder = Object(x, y, tiles.stairsdown_tile, 'stairs', libtcod.white, ladder=ladder_component)
+        objects.append(ladder)
+
+
+        for i in range(map.num_rooms):
+            # add some contents to this room, such as monsters
+            room = map.rooms[i]
+            self.place_objects(map, room, objects, player)
         map.set_fov()
 
     def place_objects(self, map, room, objects, player):
