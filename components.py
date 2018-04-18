@@ -76,14 +76,35 @@ class Fighter:
 
 
 class BasicMonster:
-    def __init__(self):
-        self.owner = None
+    class IdleState:
+        def __init__(self, ai):
+            self.ai = ai
 
-    # AI for a basic monster.
-    def take_turn(self, map, player):
-        # a basic monster takes its turn. If you can see it, it can see you
-        monster = self.owner
-        if libtcod.map_is_in_fov(map.fov_map, monster.x, monster.y):
+        def take_turn(self, map, player):
+            monster = self.ai.owner
+            if libtcod.map_is_in_fov(map.fov_map, monster.x, monster.y):
+                message('A monster has caught your attention!')
+                self.ai.state = BasicMonster.AggroState(self.ai)
+                return
+            dx = 0
+            dy = 0
+            if libtcod.random_get_int(0, 0, 1) == 1:
+                dx = libtcod.random_get_int(0, -1, 1)
+            else:
+                dy = libtcod.random_get_int(0, -1, 1)
+            self.ai.owner.move_by(dx, dy, map)
+
+    class AggroState:
+        def __init__(self, ai):
+            self.ai = ai
+
+        # AI for a basic monster.
+        def take_turn(self, map, player):
+            # a basic monster takes its turn. If you can see it, it can see you
+            monster = self.ai.owner
+            if not libtcod.map_is_in_fov(map.fov_map, monster.x, monster.y):
+                self.ai.state = BasicMonster.IdleState(self.ai)
+                return
 
             # move towards player if far away
             if monster.distance_to(player) >= 2:
@@ -92,6 +113,13 @@ class BasicMonster:
             # close enough, attack! (if the player is still alive.)
             elif player.fighter.hp > 0:
                 monster.fighter.attack(player)
+
+    def __init__(self):
+        self.owner = None
+        self.state = BasicMonster.IdleState(self)
+
+    def take_turn(self, map, player):
+        self.state.take_turn(map, player)
 
 
 class ConfusedMonster:
