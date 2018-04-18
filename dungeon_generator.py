@@ -5,9 +5,9 @@ from message import message
 from object import Object
 import tiles
 
-ROOM_MAX_SIZE = 10
-ROOM_MIN_SIZE = 6
-MAX_ROOMS = 30
+ROOM_MAX_SIZE = 14
+ROOM_MIN_SIZE = 8
+MAX_ROOMS = 20
 
 MAX_ROOM_MONSTERS = 5
 MAX_ROOM_ITEMS = 2
