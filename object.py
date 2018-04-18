@@ -27,14 +27,14 @@ class Object:
         if self.ladder:# let the Ladder component know who owns it
             self.ladder.owner = self
 
-    def move_or_attack(self, dx, dy, map, objects):
+    def move_or_attack(self, dx, dy, map):
         # the coordinates the player is moving to/attacking
         x = self.x + dx
         y = self.y + dy
 
         # try to find an attackable object there
         target = None
-        for object in objects:
+        for object in map.objects:
             if object.x == x and object.y == y and object.fighter is not None:
                 target = object
                 break
@@ -43,17 +43,17 @@ class Object:
         if target is not None:
             self.fighter.attack(target)
         else:
-            self.move(x, y, map, objects)
+            self.move(x, y, map)
 
-    def move(self, x, y, map, objects):
-        for object in objects:
+    def move(self, x, y, map):
+        for object in map.objects:
             if object.x == x and object.y == y and object.blocks:
                 return
 
         if map.tile_at(x, y).blocked:
             return
 
-        for object in objects:
+        for object in map.objects:
             if object.blocks and object.x == x and object.y == y:
                 return
 
@@ -61,7 +61,7 @@ class Object:
         self.x = x
         self.y = y
 
-    def move_towards(self, target_x, target_y, map, objects):
+    def move_towards(self, target_x, target_y, map):
         # vector from this object to the target, and distance
         dx = target_x - self.x
         dy = target_y - self.y
@@ -71,7 +71,7 @@ class Object:
         # convert to integer so the movement is restricted to the map grid
         dx = int(round(dx / distance))
         dy = int(round(dy / distance))
-        self.move(self.x + dx, self.y + dy, map, objects)
+        self.move(self.x + dx, self.y + dy, map)
 
     def distance_to(self, other):
         # return the distance to another object

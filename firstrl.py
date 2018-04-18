@@ -48,14 +48,14 @@ def player_death(player):
 
 
 def make_map():
-    global map, objects
+    global map
 
     # the list of objects with just the player
-    objects = [player]
 
     generator = DungeonGenerator(env.int('SEED', default=None))
     map = Map(MAP_WIDTH, MAP_HEIGHT)
-    generator.generate(map, objects, player)
+    map.objects.append(player)
+    generator.generate(map, player)
     (x, y) = map.rooms[0].center()
     player.x = x
     player.y = y
@@ -77,34 +77,34 @@ def handle_keys():
         key_char = chr(key.c)
         # movement keys
         if key.vk == libtcod.KEY_UP or key_char == 'w':
-            player.move_or_attack(0, -1, map, objects)
+            player.move_or_attack(0, -1, map)
             map.fov_recompute(player)
 
         elif key.vk == libtcod.KEY_DOWN or key_char == 's':
-            player.move_or_attack(0, 1, map, objects)
+            player.move_or_attack(0, 1, map)
             map.fov_recompute(player)
 
         elif key.vk == libtcod.KEY_LEFT or key_char == 'a':
-            player.move_or_attack(-1, 0, map, objects)
+            player.move_or_attack(-1, 0, map)
             map.fov_recompute(player)
 
         elif key.vk == libtcod.KEY_RIGHT or key_char == 'd':
-            player.move_or_attack(1, 0, map, objects)
+            player.move_or_attack(1, 0, map)
             map.fov_recompute(player)
 
         else:
             # test for other keys
             if key_char == 'g':
                 # pick up an item
-                for object in objects:  # look for an item in the player's tile
+                for object in map.objects:  # look for an item in the player's tile
                     if object.x == player.x and object.y == player.y and object.item:
-                        object.item.pick_up(objects, player)
+                        object.item.pick_up(map, player)
                         break
 
             # test for other keys
             if key_char == '<':
                 # pick up an item
-                for object in objects:  # look for an item in the player's tile
+                for object in map.objects:  # look for an item in the player's tile
                     if object.x == player.x and object.y == player.y and object.ladder:
                         object.ladder.ascend(map)
                         break
@@ -121,7 +121,7 @@ def handle_keys():
                 chosen_item = inventory_menu(
                     'Press the key next to an item to drop it, or any other to cancel.\n')
                 if chosen_item is not None:
-                    chosen_item.drop(player, objects)
+                    chosen_item.drop(player, map)
 
             return 'didnt-take-turn'
 
@@ -185,7 +185,7 @@ def inventory_menu(header):
 
 def render_all():
     map.draw(con)
-    for object in objects:
+    for object in map.objects:
         if object != player:
             object.draw(con, map)
     player.draw(con, map)
@@ -233,7 +233,7 @@ def get_names_under_mouse():
     # return a string with the names of all objects under the mouse
     (x, y) = (mouse.cx, mouse.cy)
     # create a list with the names of all objects at the mouse's coordinates and in FOV
-    names = [obj.display_name() for obj in objects
+    names = [obj.display_name() for obj in map.objects
              if obj.x == x and obj.y == y and libtcod.map_is_in_fov(map.fov_map, obj.x, obj.y)]
     names = ', '.join(names)  # join the names, separated by commas
     return names.capitalize()
@@ -289,14 +289,14 @@ def play_game():
         libtcod.console_flush()
 
         # handle keys and exit game if needed
-        for object in objects:
+        for object in map.objects:
             object.clear(con)
         player_action = handle_keys()
         # let monsters take their turn
         if game_state == 'playing' and player_action != 'didnt-take-turn':
-            for object in objects:
+            for object in map.objects:
                 if object != player and object.ai != None:
-                    object.ai.take_turn(map, player, objects)
+                    object.ai.take_turn(map, player)
             # deplete torch
             if map.torch_left > 0:
                 map.torch_left -= 1
@@ -308,12 +308,11 @@ def play_game():
 
 
 def save_game():
-    global map, objects
+    global map
     file = open('savegame', 'wb')
     data = {}
     data['map'] = map
-    data['objects'] = objects
-    data['player_index'] = objects.index(player)
+    data['player_index'] = map.objects.index(player)
     data['game_msgs'] = game_msgs
     data['game_state'] = game_state
     print data
@@ -322,14 +321,13 @@ def save_game():
 
 
 def load_game():
-    global map, objects, player, game_msgs, game_state
+    global map, player, game_msgs, game_state
     file = open('savegame', 'rb')
     data = dill.load(file)
     file.close()
     print data
     map = data['map']
-    objects = data['objects']
-    player = objects[data['player_index']]
+    player = map.objects[data['player_index']]
     game_msgs = data['game_msgs']
     game_state = data['game_state']
 

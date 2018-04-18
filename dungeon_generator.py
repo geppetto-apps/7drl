@@ -24,7 +24,7 @@ class DungeonGenerator:
         print "Seed: " + str(self.seed)
         self.random = libtcod.random_new_from_seed(self.seed)
 
-    def generate(self, map, objects, player):
+    def generate(self, map, player):
         for _ in range(MAX_ROOMS):
             # random width and height
             w = libtcod.random_get_int(
@@ -90,16 +90,16 @@ class DungeonGenerator:
             print("ascending!")
         ladder_component = Ladder(ascend)
         ladder = Object(x, y, tiles.stairsdown_tile, 'stairs', libtcod.white, ladder=ladder_component)
-        objects.append(ladder)
+        map.objects.append(ladder)
 
 
         for i in range(map.num_rooms):
             # add some contents to this room, such as monsters
             room = map.rooms[i]
-            self.place_objects(map, room, objects, player)
+            self.place_objects(map, room, player)
         map.set_fov()
 
-    def place_objects(self, map, room, objects, player):
+    def place_objects(self, map, room, player):
         def cast_heal():
             # heal the player
             if player.fighter.hp == player.fighter.max_hp:
@@ -115,7 +115,7 @@ class DungeonGenerator:
             # start with (slightly more than) maximum range
             closest_dist = max_range + 1
 
-            for object in objects:
+            for object in map.objects:
                 if object.fighter and not object == player and libtcod.map_is_in_fov(map.fov_map, object.x, object.y):
                     # calculate distance between this object and the player
                     dist = player.distance_to(object)
@@ -164,9 +164,9 @@ class DungeonGenerator:
                     message(monster.name.capitalize() +
                             ' dropped healing potion!', libtcod.light_amber)
                     item = self.place_potion(cast_heal, monster.x, monster.y)
-                    objects.append(item)
+                    map.objects.append(item)
             monster.name = 'remains of ' + monster.name
-            monster.send_to_back(objects)
+            monster.send_to_back(map.objects)
 
         # choose random number of monsters
         num_monsters = libtcod.random_get_int(
@@ -196,7 +196,7 @@ class DungeonGenerator:
                     monster = Object(x, y, tiles.troll_tile, 'troll', libtcod.darker_green,
                                      blocks=True, fighter=fighter_component, ai=ai_component)
 
-                objects.append(monster)
+                map.objects.append(monster)
 
         # choose random number of items
         num_items = self.random_int(0, MAX_ROOM_ITEMS)
@@ -221,8 +221,8 @@ class DungeonGenerator:
                     item = Object(x, y, tiles.scroll_tile, 'scroll of confusion',
                                   libtcod.orange, item=item_component)
                 # items appear below other objects
-                objects.append(item)
-                item.send_to_back(objects)
+                map.objects.append(item)
+                item.send_to_back(map.objects)
 
     def place_potion(self, cast_heal, x, y):
         item_component = Item(use_function=cast_heal)

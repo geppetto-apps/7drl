@@ -80,14 +80,14 @@ class BasicMonster:
         self.owner = None
 
     # AI for a basic monster.
-    def take_turn(self, map, player, objects):
+    def take_turn(self, map, player):
         # a basic monster takes its turn. If you can see it, it can see you
         monster = self.owner
         if libtcod.map_is_in_fov(map.fov_map, monster.x, monster.y):
 
             # move towards player if far away
             if monster.distance_to(player) >= 2:
-                monster.move_towards(player.x, player.y, map, objects)
+                monster.move_towards(player.x, player.y, map)
 
             # close enough, attack! (if the player is still alive.)
             elif player.fighter.hp > 0:
@@ -104,12 +104,12 @@ class ConfusedMonster:
         self.old_ai = old_ai
         self.num_turns = num_turns
 
-    def take_turn(self, map, player, objects):
+    def take_turn(self, map, player):
         if self.num_turns > 0:  # still confused...
             # move in a random direction, and decrease the number of turns confused
             dx = libtcod.random_get_int(0, -1, 1)
             dy = libtcod.random_get_int(0, -1, 1)
-            self.owner.move(dx, dy, map, objects)
+            self.owner.move(dx, dy, map)
             self.num_turns -= 1
         # restore the previous AI (this one will be deleted because it's not referenced anymore)
         else:
@@ -124,14 +124,14 @@ class Item:
         self.use_function = use_function
 
     # an item that can be picked up and used.
-    def pick_up(self, objects, player):
+    def pick_up(self, map, player):
         # add to the player's inventory and remove from the map
         if len(player.inventory) >= 26:
             message('Your inventory is full, cannot pick up ' +
                     self.owner.name + '.', libtcod.red)
         else:
             player.inventory.append(self.owner)
-            objects.remove(self.owner)
+            map.objects.remove(self.owner)
             message('You picked up a ' + self.owner.name + '!', libtcod.green)
 
     def use(self, player):
@@ -143,9 +143,9 @@ class Item:
                 # destroy after use, unless it was cancelled for some reason
                 player.inventory.remove(self.owner)
 
-    def drop(self, player, objects):
+    def drop(self, player, map):
         # add to the map and remove from the player's inventory. also, place it at the player's coordinates
-        objects.append(self.owner)
+        map.objects.append(self.owner)
         player.inventory.remove(self.owner)
         self.owner.x = player.x
         self.owner.y = player.y
