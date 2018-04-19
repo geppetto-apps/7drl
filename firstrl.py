@@ -45,7 +45,7 @@ def player_death(player):
     game_state = 'dead'
 
     # for added effect, transform the player into a corpse!
-    player.char = tiles.tomb_tile
+    player.char = tiles.playertomb_tile
 
 
 def make_map(**kargs):
