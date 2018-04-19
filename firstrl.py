@@ -6,8 +6,10 @@ from message import game_msgs, message
 from constants import *
 from dungeon_generator import DungeonGenerator
 from envparse import env
+from sounds import play_sound
 import tiles
 import dill
+
 
 libtcod.console_set_custom_font(
     'sprites.png', libtcod.FONT_LAYOUT_ASCII_INROW)
@@ -19,6 +21,7 @@ libtcod.sys_set_fps(LIMIT_FPS)
 panel = libtcod.console_new(SCREEN_WIDTH, PANEL_HEIGHT)
 
 generator = DungeonGenerator(env.int('SEED', default=None))
+
 
 def new_game():
     global player, inventory, game_msgs, game_state
@@ -37,7 +40,6 @@ def new_game():
     # a warm welcoming message!
     message('Welcome stranger! Prepare to perish in the Tombs of the Ancient Kings.', libtcod.red)
 
-
 def player_death(player):
     # the game ended!
     global game_state
@@ -46,7 +48,7 @@ def player_death(player):
 
     # for added effect, transform the player into a corpse!
     player.char = tiles.playertomb_tile
-
+    play_sound('Dead.wav')
 
 def make_map(**kargs):
     global map
@@ -76,7 +78,6 @@ def handle_keys():
         if key.vk == libtcod.KEY_UP or key_char == 'w':
             player.move_or_attack(0, -1, map)
             map.fov_recompute(player)
-
         elif key.vk == libtcod.KEY_DOWN or key_char == 's':
             player.move_or_attack(0, 1, map)
             map.fov_recompute(player)
@@ -96,6 +97,7 @@ def handle_keys():
                 for object in map.objects:  # look for an item in the player's tile
                     if object.x == player.x and object.y == player.y and object.item:
                         object.item.pick_up(map, player)
+                        play_sound('Pickup.wav')
                         break
 
             # test for other keys

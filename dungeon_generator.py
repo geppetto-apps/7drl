@@ -3,6 +3,7 @@ from components import Fighter, BasicMonster, Item, ConfusedMonster, Ladder
 from rect import Rect
 from message import message
 from object import Object
+from sounds import play_sound
 import tiles
 import random
 
@@ -135,9 +136,11 @@ class DungeonGenerator:
             # heal the player
             if player.fighter.hp == player.fighter.max_hp:
                 message('You are already at full health.', libtcod.red)
+                play_sound('wrong.wav')
                 return 'cancelled'
 
             message('Your wounds start to feel better!', libtcod.light_violet)
+            play_sound('Heal.wav')
             player.fighter.heal(HEAL_AMOUNT)
 
         def closest_monster(max_range):
@@ -163,6 +166,7 @@ class DungeonGenerator:
                 return 'cancelled'
 
             # zap it!
+            play_sound('Spellexplosion.wav')
             message('A lighting bolt strikes the ' + monster.name + ' with a loud thunder! The damage is '
                     + str(LIGHTNING_DAMAGE) + ' hit points.', libtcod.light_blue)
             monster.fighter.take_damage(LIGHTNING_DAMAGE, player.fighter)
@@ -179,12 +183,14 @@ class DungeonGenerator:
             monster.ai.owner = monster  # tell the new component who owns it
             message('The eyes of the ' + monster.name +
                     ' look vacant, as he starts to stumble around!', libtcod.light_green)
+            play_sound('Confuse.wav')
 
         def monster_death(monster):
             # transform it into a nasty corpse! it doesn't block, can't be
             # attacked and doesn't move
             message(monster.name.capitalize() + ' is dead!', libtcod.green)
             monster.char = tiles.tomb_tile
+            play_sound('Monsterkill.wav')
             monster.color = libtcod.white
             monster.blocks = False
             monster.fighter = None

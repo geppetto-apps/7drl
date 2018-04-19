@@ -1,5 +1,6 @@
 import libtcodpy as libtcod
 from message import message
+from sounds import play_sound
 
 
 class Fighter:
@@ -18,6 +19,7 @@ class Fighter:
         # apply damage if possible
         if damage > 0:
             self.hp -= damage
+            play_sound('hurt.wav')
         # check for death. if there's a death function, call it
         if self.hp <= 0:
             attacker.grant_xp(self.xp_gain)
@@ -31,16 +33,17 @@ class Fighter:
 
         # a simple formula for attack damage
         damage = self.power - target.fighter.defense
-
-        if damage > 0:
+        
+        if damage > 0: 
             # make the target take some damage
             message(self.owner.name.capitalize() + ' attacks ' + target.name +
                     ' for ' + str(damage) + ' hit points.')
-            target.fighter.take_damage(damage, self)
+            target.fighter.take_damage(damage, self)            
         else:
+            play_sound('miss.wav')
             message(self.owner.name.capitalize() + ' attacks ' + target.name +
                     ' but it has no effect!')
-
+            
     def heal(self, amount):
         # heal by the given amount, without going over the maximum
         self.hp += amount
@@ -53,6 +56,7 @@ class Fighter:
         if self.level() > level:
             message('You leveled up!', libtcod.green)
             self.hp = self.max_hp
+            play_sound('Levelup.wav')
 
     def level(self):
         xp = 0
@@ -157,6 +161,7 @@ class Item:
         if len(player.inventory) >= 26:
             message('Your inventory is full, cannot pick up ' +
                     self.owner.name + '.', libtcod.red)
+            play_sound('wrong.wav')       
         else:
             player.inventory.append(self.owner)
             map.objects.remove(self.owner)
