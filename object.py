@@ -77,28 +77,7 @@ class Object:
         self.move(self.x + dx, self.y + dy, map)
 
     def move_astar(self, target, map):
-        #Create a FOV map that has the dimensions of the map
-        fov = libtcod.map_new(map.w, map.h)
-
-        #Scan the current map each turn and set all the walls as unwalkable
-        for y1 in range(map.h):
-            for x1 in range(map.w):
-                libtcod.map_set_properties(fov, x1, y1, not map.tiles[x1][y1].block_sight, not map.tiles[x1][y1].blocked)
-
-        #Scan all the objects to see if there are objects that must be navigated around
-        #Check also that the object isn't self or the target (so that the start and the end points are free)
-        #The AI class handles the situation if self is next to the target so it will not use this A* function anyway
-        for obj in map.objects:
-            if obj.blocks and obj != self and obj != target:
-                #Set the tile as a wall so it must be navigated around
-                libtcod.map_set_properties(fov, obj.x, obj.y, True, False)
-
-        #Allocate a A* path
-        #The 1.41 is the normal diagonal cost of moving, it can be set as 0.0 if diagonal moves are prohibited
-        my_path = libtcod.path_new_using_map(fov, 1.41)
-
-        #Compute the path between self's coordinates and the target's coordinates
-        libtcod.path_compute(my_path, self.x, self.y, target.x, target.y)
+        my_path = self.astar_path(map, target.x, target.y, target)
 
         #Check if the path exists, and in this case, also the path is shorter than 25 tiles
         #The path size matters if you want the monster to use alternative longer paths (for example through other rooms) if for example the player is in a corridor
@@ -118,6 +97,27 @@ class Object:
         #Delete the path to free memory
         libtcod.path_delete(my_path)
 
+    def astar_path(self, map, x, y, target=None):
+        #Create a FOV map that has the dimensions of the map
+        fov = libtcod.map_new(map.w, map.h)
+
+        #Scan the current map each turn and set all the walls as unwalkable
+        for y1 in range(map.h):
+            for x1 in range(map.w):
+                libtcod.map_set_properties(fov, x1, y1, not map.tiles[x1][y1].block_sight, not map.tiles[x1][y1].blocked)
+
+        #Scan all the objects to see if there are objects that must be navigated around
+        #Check also that the object isn't self or the target (so that the start and the end points are free)
+        #The AI class handles the situation if self is next to the target so it will not use this A* function anyway
+        for obj in map.objects:
+            if obj.blocks and obj != self and obj != target:
+                #Set the tile as a wall so it must be navigated around
+                libtcod.map_set_properties(fov, obj.x, obj.y, True, False)
+
+        #Allocate a A* path
+        #The 1.41 is the normal diagonal cost of moving, it can be set as 0.0 if diagonal moves are prohibited
+        return libtcod.path_new_using_map(fov, 1.41)
+
     def distance_to(self, x, y=None):
         if y == None:
             other = x
@@ -127,6 +127,17 @@ class Object:
         dx = x - self.x
         dy = y - self.y
         return math.sqrt(dx ** 2 + dy ** 2)
+
+    def astar_distance_to(self, map, x, y=None):
+        if y == None:
+            other = x
+            x = other.x
+            y = other.y
+        # return the distance to another object
+        my_path = self.astar_path(map, x, y)
+        #Compute the path between self's coordinates and the target's coordinates
+        libtcod.path_compute(my_path, self.x, self.y, x, y)
+        return libtcod.path_size(my_path)
 
     def display_name(self):
         if self.fighter == None:

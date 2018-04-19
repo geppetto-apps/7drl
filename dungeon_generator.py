@@ -182,7 +182,7 @@ class DungeonGenerator:
 
             # only place it if the tile is not blocked
             if not map.tile_at(x, y).blocked:
-                distance = player.distance_to(x, y)
+                distance = player.astar_distance_to(map, x, y)
                 if self.chance(80):
                     # create an orc
                     defense = 0
