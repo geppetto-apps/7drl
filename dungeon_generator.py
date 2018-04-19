@@ -24,7 +24,7 @@ class DungeonGenerator:
         print "Seed: " + str(self.seed)
         self.random = libtcod.random_new_from_seed(self.seed)
 
-    def generate(self, map, player):
+    def generate(self, map, player, start_x=None, start_y=None):
         for _ in range(MAX_ROOMS):
             # random width and height
             w = libtcod.random_get_int(
@@ -32,8 +32,14 @@ class DungeonGenerator:
             h = libtcod.random_get_int(
                 self.random, ROOM_MIN_SIZE, ROOM_MAX_SIZE)
             # random position without going out of the boundaries of the map
-            x = self.random_int(0, map.w - w - 1)
-            y = self.random_int(0, map.h - h - 1)
+            if start_x != None and start_y != None:
+                x = start_x - w / 2
+                y = start_y - h / 2
+                start_x = None
+                start_y = None
+            else:
+                x = self.random_int(0, map.w - w - 1)
+                y = self.random_int(0, map.h - h - 1)
 
             # "Rect" class makes rectangles easier to work with
             new_room = Rect(x, y, w, h)

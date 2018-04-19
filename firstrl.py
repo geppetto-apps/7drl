@@ -18,6 +18,7 @@ libtcod.sys_set_fps(LIMIT_FPS)
 
 panel = libtcod.console_new(SCREEN_WIDTH, PANEL_HEIGHT)
 
+generator = DungeonGenerator(env.int('SEED', default=None))
 
 def new_game():
     global player, inventory, game_msgs, game_state
@@ -47,15 +48,14 @@ def player_death(player):
     player.char = tiles.tomb_tile
 
 
-def make_map():
+def make_map(**kargs):
     global map
 
     # the list of objects with just the player
 
-    generator = DungeonGenerator(env.int('SEED', default=None))
     map = Map(MAP_WIDTH, MAP_HEIGHT)
     map.objects.append(player)
-    generator.generate(map, player)
+    generator.generate(map, player, **kargs)
     map.fov_recompute(player)
     # unexplored areas start black (which is the default background color)
     libtcod.console_clear(con)
@@ -103,7 +103,7 @@ def handle_keys():
                 # pick up an item
                 for object in map.objects:  # look for an item in the player's tile
                     if object.x == player.x and object.y == player.y and object.ladder:
-                        object.ladder.ascend(map)
+                        make_map(start_x=player.x, start_y=player.y)
                         break
 
             if key_char == 'i':
