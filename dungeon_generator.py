@@ -214,7 +214,7 @@ class DungeonGenerator:
                 if self.chance(80):
                     # create an orc
                     defense = 0
-                    power = 2 + int(distance / 15)
+                    power = 2 + int(distance / 30)
                     fighter_component = Fighter(
                         hp=10, defense=defense, power=power, death_function=monster_death)
                     ai_component = BasicMonster()
@@ -223,8 +223,8 @@ class DungeonGenerator:
                                      blocks=True, fighter=fighter_component, ai=ai_component)
                 else:
                     # create a troll
-                    defense = 1 + int(distance / 20)
-                    power = 4 + int(distance / 15)
+                    defense = 1 + int(distance / 30)
+                    power = 4 + int(distance / 30)
                     fighter_component = Fighter(
                         hp=16, defense=defense, power=power, death_function=monster_death)
                     ai_component = BasicMonster()
