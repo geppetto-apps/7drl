@@ -4,6 +4,7 @@ floor_tile = 181
 orc_tile = 218
 troll_tile = 212
 scroll_tile = 187
+chest_tile = 189
 healingpotion_tile = 184
 sword_tile = 107
 shield_tile = 104

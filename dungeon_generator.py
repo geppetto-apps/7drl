@@ -4,6 +4,7 @@ from rect import Rect
 from message import message
 from object import Object
 import tiles
+import random
 
 ROOM_MAX_SIZE = 14
 ROOM_MIN_SIZE = 8
@@ -23,6 +24,7 @@ class DungeonGenerator:
         self.seed = seed or libtcod.random_get_int(0, 0, 65555)
         print "Seed: " + str(self.seed)
         self.random = libtcod.random_new_from_seed(self.seed)
+        random.seed(self.seed)
 
     def generate(self, map, player, start_x=None, start_y=None):
         for _ in range(MAX_ROOMS):
@@ -98,8 +100,12 @@ class DungeonGenerator:
 
         map.rooms.sort(key=sort_fn)
 
-        # put the ladder in the last room
-        exit_room = map.rooms[ map.num_rooms-1]
+        # get the 3 last rooms
+        last_rooms = map.rooms[-3:]
+        random.shuffle(last_rooms)
+
+        # put the ladder in one of the last rooms
+        exit_room = last_rooms.pop()
         x = self.random_int(exit_room.x1 + 2, exit_room.x2 - 2)
         y = self.random_int(exit_room.y1 + 2, exit_room.y2 - 2)
 
@@ -110,6 +116,13 @@ class DungeonGenerator:
         ladder = Object(x, y, tiles.stairsdown_tile, 'stairs', libtcod.white, ladder=ladder_component)
         map.objects.append(ladder)
 
+        def open_fn():
+            print('opening chest')
+
+        # place chests
+        for room in last_rooms:
+            (x, y) = room.center()
+            map.objects.append(self.place_chest(open_fn, x, y))
 
         for i in range(1, map.num_rooms):
             # add some contents to this room, such as monsters
@@ -255,6 +268,11 @@ class DungeonGenerator:
     def place_bolt(self, cast_fn, x, y):
         item_component = Item(use_function=cast_fn)
         return Object(x, y, tiles.scroll_tile, 'scroll of lightning bolt',
+                      libtcod.white, item=item_component)
+
+    def place_chest(self, open_fn, x, y):
+        item_component = Item(use_function=open_fn)
+        return Object(x, y, tiles.chest_tile, 'chest',
                       libtcod.white, item=item_component)
 
     def random_int(self, min, max):
