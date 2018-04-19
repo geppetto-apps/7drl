@@ -100,8 +100,8 @@ class DungeonGenerator:
 
         # put the ladder in the last room
         exit_room = map.rooms[ map.num_rooms-1]
-        x = self.random_int(exit_room.x1 + 1, exit_room.x2 - 1)
-        y = self.random_int(exit_room.y1 + 1, exit_room.y2 - 1)
+        x = self.random_int(exit_room.x1 + 2, exit_room.x2 - 2)
+        y = self.random_int(exit_room.y1 + 2, exit_room.y2 - 2)
 
         # create a ladder
         def ascend():
