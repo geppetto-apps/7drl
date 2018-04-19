@@ -80,11 +80,23 @@ class DungeonGenerator:
                 if tile != None and tile.tunnel:
                     tile.blocked = False
                     tile.block_sight = False
-        n = self.random_int(0, map.num_rooms-1)
-        exit_room = map.rooms[n]
-        # choose random spot for the ladder
+        # sort rooms
+        first_room = map.rooms[0]
+        (x, y) = first_room.center()
+        player.x = x
+        player.y = y
+
+        def sort_fn(room):
+            (x, y) = room.center()
+            return player.astar_distance_to(map, x, y)
+
+        map.rooms.sort(key=sort_fn)
+
+        # put the ladder in the last room
+        exit_room = map.rooms[ map.num_rooms-1]
         x = self.random_int(exit_room.x1 + 1, exit_room.x2 - 1)
         y = self.random_int(exit_room.y1 + 1, exit_room.y2 - 1)
+
         # create a ladder
         def ascend():
             print("ascending!")
@@ -93,9 +105,6 @@ class DungeonGenerator:
         map.objects.append(ladder)
 
 
-        (x, y) = map.rooms[0].center()
-        player.x = x
-        player.y = y
         for i in range(1, map.num_rooms):
             # add some contents to this room, such as monsters
             room = map.rooms[i]
