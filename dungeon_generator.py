@@ -232,7 +232,7 @@ class DungeonGenerator:
         # place chests
         for room in last_rooms:
             (x, y) = room.center()
-            map.add_object(place_chest(open_fn, x, y))
+            # map.add_object(place_chest(open_fn, x, y))
 
         for i in range(1, map.num_rooms):
             # add some contents to this room, such as monsters
