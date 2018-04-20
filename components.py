@@ -29,7 +29,7 @@ class Fighter:
             function = self.death_function
             victim = str.capitalize(self.owner.name)
             attacker_name = str.capitalize(attacker.owner.name)
-            track(victim + ' Defeated ' + attacker_name, {
+            track(attacker_name + ' Defeated ' + victim, {
                 'victim_level': self.level(),
                 'attacker_level': attacker.level(),
             })
