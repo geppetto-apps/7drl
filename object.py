@@ -79,6 +79,8 @@ class Object:
     def move_astar(self, target, map):
         my_path = self.astar_path(map, target.x, target.y, target)
 
+        #Compute the path between self's coordinates and the target's coordinates
+        libtcod.path_compute(my_path, self.x, self.y, target.x, target.y)
         #Check if the path exists, and in this case, also the path is shorter than 25 tiles
         #The path size matters if you want the monster to use alternative longer paths (for example through other rooms) if for example the player is in a corridor
         #It makes sense to keep path size relatively low to keep the monsters from running around the map if there's an alternative path really far away
