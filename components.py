@@ -34,7 +34,7 @@ class Fighter:
             return
 
         # a simple formula for attack damage
-        damage = self.power - target.fighter.defense
+        damage = libtcod.random_get_int(0, 0, self.power) - libtcod.random_get_int(0, 0, target.fighter.defense)
 
         if damage > 0:
             # make the target take some damage
