@@ -10,6 +10,7 @@ from envparse import env
 from sounds import play_sound
 import tiles
 import dill
+import os.path
 
 
 libtcod.console_set_custom_font(
@@ -24,8 +25,17 @@ panel = libtcod.console_new(SCREEN_WIDTH, PANEL_HEIGHT)
 generator = DungeonGenerator(env.int('SEED', default=None))
 
 
+def keep_savegame():
+    if os.path.isfile('savegame'):
+        header = 'Overwrite existing game?'
+        options = ['No', 'Yes']
+        index = menu(header, options, 30)
+        return index != 1
+    return False
+
 def new_game():
     global player, game_msgs, game_state
+
 
     # create object representing the player
     fighter_component = Fighter(power_base=10,defense_base=3,death_function=player_death)
@@ -353,8 +363,9 @@ def main_menu():
             '', ['Play a new game', 'Continue last game', 'Quit'], 24)
 
         if choice == 0:  # new game
-            new_game()
-            play_game()
+            if not keep_savegame():
+                new_game()
+                play_game()
         elif choice == 1:  # load game
             load_game()
             play_game()
