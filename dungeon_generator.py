@@ -20,6 +20,95 @@ LIGHTNING_DAMAGE = 20
 LIGHTNING_RANGE = 5
 
 
+def cast_heal(player):
+    # heal the player
+    if player.fighter.hp == player.fighter.max_hp:
+        message('You are already at full health.', libtcod.red)
+        play_sound('wrong.wav')
+        return 'cancelled'
+
+    message('Your wounds start to feel better!', libtcod.light_violet)
+    play_sound('Heal.wav')
+    player.fighter.heal(HEAL_AMOUNT)
+
+def closest_monster(player, max_range):
+    # find closest enemy, up to a maximum range, and in the player's FOV
+    closest_enemy = None
+    # start with (slightly more than) maximum range
+    closest_dist = max_range + 1
+
+    map = player.map
+    for object in map._objects:
+        if object.fighter and not object == player and libtcod.map_is_in_fov(map.fov_map, object.x, object.y):
+            # calculate distance between this object and the player
+            dist = player.distance_to(object)
+            if dist < closest_dist:  # it's closer, so remember it
+                closest_enemy = object
+                closest_dist = dist
+    return closest_enemy
+
+def cast_lightning(player):
+    # find closest enemy (inside a maximum range) and damage it
+    monster = closest_monster(player, LIGHTNING_RANGE)
+    if monster is None:  # no enemy found within maximum range
+        message('No enemy is close enough to strike.', libtcod.red)
+        return 'cancelled'
+
+    # zap it!
+    play_sound('Spellexplosion.wav')
+    message('A lighting bolt strikes the ' + monster.name + ' with a loud thunder! The damage is '
+            + str(LIGHTNING_DAMAGE) + ' hit points.', libtcod.light_blue)
+    monster.fighter.take_damage(LIGHTNING_DAMAGE, player.fighter)
+
+def cast_confuse(player):
+    # find closest enemy in-range and confuse it
+    monster = closest_monster(player, ConfusedMonster.CONFUSE_RANGE)
+    if monster is None:  # no enemy found within maximum range
+        message('No enemy is close enough to confuse.', libtcod.red)
+        return 'cancelled'
+    # replace the monster's AI with a "confused" one; after some turns it will restore the old AI
+    old_ai = monster.ai
+    monster.ai = ConfusedMonster(old_ai)
+    monster.ai.owner = monster  # tell the new component who owns it
+    message('The eyes of the ' + monster.name +
+            ' look vacant, as he starts to stumble around!', libtcod.light_green)
+    play_sound('Confuse.wav')
+
+def monster_death(monster):
+    # transform it into a nasty corpse! it doesn't block, can't be
+    # attacked and doesn't move
+    message(monster.name.capitalize() + ' is dead!', libtcod.green)
+    monster.char = tiles.tomb_tile
+    play_sound('Monsterkill.wav')
+    monster.color = libtcod.white
+    monster.blocks = False
+    monster.fighter = None
+    monster.ai = None
+    if monster.name == 'orc':
+        # 25 % chance of dropping potion
+        if libtcod.random_get_int(0, 0, 100) > 75:
+            message(monster.name.capitalize() +
+                    ' dropped healing potion!', libtcod.light_amber)
+            item = place_potion(cast_heal, monster.x, monster.y)
+            monster.map.add_object(item)
+    monster.name = 'remains of ' + monster.name
+    monster.map.send_to_back(monster)
+
+def place_potion(cast_heal, x, y):
+    item_component = Item(use_function=cast_heal)
+    return Object(x, y, tiles.healingpotion_tile, 'healing potion',
+                    libtcod.white, item=item_component)
+
+def place_bolt(cast_fn, x, y):
+    item_component = Item(use_function=cast_fn)
+    return Object(x, y, tiles.scroll_tile, 'scroll of lightning bolt',
+                    libtcod.white, item=item_component)
+
+def place_chest(open_fn, x, y):
+    item_component = Item(use_function=open_fn)
+    return Object(x, y, tiles.chest_tile, 'chest',
+                    libtcod.white, item=item_component)
+
 class MonsterGenerator:
     @staticmethod
     def orc(x, y, player, distance, monster_death):
@@ -137,13 +226,13 @@ class DungeonGenerator:
         ladder = Object(x, y, tiles.stairsdown_tile, 'stairs', libtcod.white, ladder=ladder_component)
         map.add_object(ladder)
 
-        def open_fn():
+        def open_fn(player):
             print('opening chest')
 
         # place chests
         for room in last_rooms:
             (x, y) = room.center()
-            map.add_object(self.place_chest(open_fn, x, y))
+            map.add_object(place_chest(open_fn, x, y))
 
         for i in range(1, map.num_rooms):
             # add some contents to this room, such as monsters
@@ -155,79 +244,6 @@ class DungeonGenerator:
         map.set_fov()
 
     def place_objects(self, map, room, player):
-        def cast_heal():
-            # heal the player
-            if player.fighter.hp == player.fighter.max_hp:
-                message('You are already at full health.', libtcod.red)
-                play_sound('wrong.wav')
-                return 'cancelled'
-
-            message('Your wounds start to feel better!', libtcod.light_violet)
-            play_sound('Heal.wav')
-            player.fighter.heal(HEAL_AMOUNT)
-
-        def closest_monster(max_range):
-            # find closest enemy, up to a maximum range, and in the player's FOV
-            closest_enemy = None
-            # start with (slightly more than) maximum range
-            closest_dist = max_range + 1
-
-            for object in map._objects:
-                if object.fighter and not object == player and libtcod.map_is_in_fov(map.fov_map, object.x, object.y):
-                    # calculate distance between this object and the player
-                    dist = player.distance_to(object)
-                    if dist < closest_dist:  # it's closer, so remember it
-                        closest_enemy = object
-                        closest_dist = dist
-            return closest_enemy
-
-        def cast_lightning():
-            # find closest enemy (inside a maximum range) and damage it
-            monster = closest_monster(LIGHTNING_RANGE)
-            if monster is None:  # no enemy found within maximum range
-                message('No enemy is close enough to strike.', libtcod.red)
-                return 'cancelled'
-
-            # zap it!
-            play_sound('Spellexplosion.wav')
-            message('A lighting bolt strikes the ' + monster.name + ' with a loud thunder! The damage is '
-                    + str(LIGHTNING_DAMAGE) + ' hit points.', libtcod.light_blue)
-            monster.fighter.take_damage(LIGHTNING_DAMAGE, player.fighter)
-
-        def cast_confuse():
-            # find closest enemy in-range and confuse it
-            monster = closest_monster(ConfusedMonster.CONFUSE_RANGE)
-            if monster is None:  # no enemy found within maximum range
-                message('No enemy is close enough to confuse.', libtcod.red)
-                return 'cancelled'
-            # replace the monster's AI with a "confused" one; after some turns it will restore the old AI
-            old_ai = monster.ai
-            monster.ai = ConfusedMonster(old_ai)
-            monster.ai.owner = monster  # tell the new component who owns it
-            message('The eyes of the ' + monster.name +
-                    ' look vacant, as he starts to stumble around!', libtcod.light_green)
-            play_sound('Confuse.wav')
-
-        def monster_death(monster):
-            # transform it into a nasty corpse! it doesn't block, can't be
-            # attacked and doesn't move
-            message(monster.name.capitalize() + ' is dead!', libtcod.green)
-            monster.char = tiles.tomb_tile
-            play_sound('Monsterkill.wav')
-            monster.color = libtcod.white
-            monster.blocks = False
-            monster.fighter = None
-            monster.ai = None
-            if monster.name == 'orc':
-                # 25 % chance of dropping potion
-                if self.chance(25):
-                    message(monster.name.capitalize() +
-                            ' dropped healing potion!', libtcod.light_amber)
-                    item = self.place_potion(cast_heal, monster.x, monster.y)
-                    map.add_object(item)
-            monster.name = 'remains of ' + monster.name
-            map.send_to_back(monster)
-
         # choose random number of monsters
         num_monsters = libtcod.random_get_int(
             self.random, 0, MAX_ROOM_MONSTERS)
@@ -262,31 +278,16 @@ class DungeonGenerator:
                 item = None
                 if self.chance(50):
                     # create a healing potion (70 % chance)
-                    item = self.place_potion(cast_heal, x, y)
+                    item = place_potion(cast_heal, x, y)
                 elif self.chance(50):
                     # create a lightning bolt scroll (30% chance)
-                    item = self.place_bolt(cast_lightning, x, y)
+                    item = place_bolt(cast_lightning, x, y)
                 else:
                     # create a confuse scroll (15% chance)
                     item_component = Item(use_function=cast_confuse)
                     item = Object(x, y, tiles.scroll_tile, 'scroll of confusion',
                                   libtcod.orange, item=item_component)
                 map.add_object(item)
-
-    def place_potion(self, cast_heal, x, y):
-        item_component = Item(use_function=cast_heal)
-        return Object(x, y, tiles.healingpotion_tile, 'healing potion',
-                      libtcod.white, item=item_component)
-
-    def place_bolt(self, cast_fn, x, y):
-        item_component = Item(use_function=cast_fn)
-        return Object(x, y, tiles.scroll_tile, 'scroll of lightning bolt',
-                      libtcod.white, item=item_component)
-
-    def place_chest(self, open_fn, x, y):
-        item_component = Item(use_function=open_fn)
-        return Object(x, y, tiles.chest_tile, 'chest',
-                      libtcod.white, item=item_component)
 
     def random_int(self, min, max):
         return libtcod.random_get_int(self.random, min, max)

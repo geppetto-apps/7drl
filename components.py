@@ -181,7 +181,7 @@ class Item:
         if self.use_function is None:
             message('The ' + self.owner.name + ' cannot be used.')
         else:
-            if self.use_function() != 'cancelled':
+            if self.use_function(player) != 'cancelled':
                 # destroy after use, unless it was cancelled for some reason
                 player.inventory.remove(self.owner)
 

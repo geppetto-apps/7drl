@@ -85,9 +85,11 @@ class Map:
         return self.tiles[x][y]
 
     def add_object(self, object):
+        object.map = self
         self._objects.insert(0, object)
 
     def remove_object(self, object):
+        object.map = None
         self._objects.remove(object)
 
     def send_to_back(self, object):
