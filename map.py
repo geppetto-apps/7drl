@@ -38,7 +38,7 @@ class Map:
         self.num_rooms = 0
         self.fov_map = libtcod.map_new(self.w, self.h)
         self.torch_left = 10000
-        self.objects = []
+        self._objects = []
         self.tiles = [[Tile(True)
                        for _ in range(self.h)]
                       for _ in range(self.w)]
@@ -84,6 +84,16 @@ class Map:
     def tile_at(self, x, y):
         return self.tiles[x][y]
 
+    def add_object(self, object):
+        self._objects.insert(0, object)
+
+    def remove_object(self, object):
+        self._objects.remove(object)
+
+    def send_to_back(self, object):
+        self.remove_object(object)
+        self.add_object(object)
+
     def draw(self, con, player):
         for y in range(self.h):
             for x in range(self.w):
@@ -122,3 +132,7 @@ class Map:
                     if not tile.explored:
                         player.fighter.grant_xp(tile.xp_gain)
                         tile.explored = True
+        for object in self._objects:
+            if object != player:
+                object.draw(con, self)
+        player.draw(con, self)

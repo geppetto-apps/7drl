@@ -173,7 +173,7 @@ class Item:
             play_sound('wrong.wav')
         else:
             player.inventory.append(self.owner)
-            map.objects.remove(self.owner)
+            map.remove_object(self.owner)
             message('You picked up a ' + self.owner.name + '!', libtcod.green)
 
     def use(self, player):
@@ -187,7 +187,7 @@ class Item:
 
     def drop(self, player, map):
         # add to the map and remove from the player's inventory. also, place it at the player's coordinates
-        map.objects.append(self.owner)
+        map.add_object(self.owner)
         player.inventory.remove(self.owner)
         self.owner.x = player.x
         self.owner.y = player.y

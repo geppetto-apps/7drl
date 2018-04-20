@@ -56,7 +56,7 @@ def make_map(**kargs):
     # the list of objects with just the player
 
     map = Map(MAP_WIDTH, MAP_HEIGHT)
-    map.objects.append(player)
+    map.add_object(player)
     generator.generate(map, player, **kargs)
     map.fov_recompute(player)
     # unexplored areas start black (which is the default background color)
@@ -95,7 +95,7 @@ def handle_keys():
             # test for other keys
             if key_char == 'g':
                 # pick up an item
-                for object in map.objects:  # look for an item in the player's tile
+                for object in map._objects:  # look for an item in the player's tile
                     if object.x == player.x and object.y == player.y and object.item:
                         object.item.pick_up(map, player)
                         play_sound('Pickup.wav')
@@ -104,7 +104,7 @@ def handle_keys():
             # test for other keys
             if key_char == '<':
                 # pick up an item
-                for object in map.objects:  # look for an item in the player's tile
+                for object in map._objects:  # look for an item in the player's tile
                     if object.x == player.x and object.y == player.y and object.ladder:
                         make_map(start_x=player.x, start_y=player.y)
                         break
@@ -116,7 +116,7 @@ def handle_keys():
                 if chosen_item is not None:
                     chosen_item.use(player)
 
-            if key_char == 'd':
+            if key_char == 'u':
                 # show the inventory; if an item is selected, drop it
                 chosen_item = inventory_menu(
                     'Press the key next to an item to drop it, or any other to cancel.\n')
@@ -185,10 +185,6 @@ def inventory_menu(header):
 
 def render_all():
     map.draw(con, player)
-    for object in map.objects:
-        if object != player:
-            object.draw(con, map)
-    player.draw(con, map)
     # show the player's stats
     libtcod.console_set_default_foreground(con, libtcod.white)
     libtcod.console_print_ex(con, 1, SCREEN_HEIGHT - 2, libtcod.BKGND_NONE, libtcod.LEFT,
@@ -233,7 +229,7 @@ def get_names_under_mouse():
     # return a string with the names of all objects under the mouse
     (x, y) = (mouse.cx, mouse.cy)
     # create a list with the names of all objects at the mouse's coordinates and in FOV
-    names = [obj.display_name() for obj in map.objects
+    names = [obj.display_name() for obj in map._objects
              if obj.x == x and obj.y == y and libtcod.map_is_in_fov(map.fov_map, obj.x, obj.y)]
     names = ', '.join(names)  # join the names, separated by commas
     return names.capitalize()
@@ -289,12 +285,12 @@ def play_game():
         libtcod.console_flush()
 
         # handle keys and exit game if needed
-        for object in map.objects:
+        for object in map._objects:
             object.clear(con)
         player_action = handle_keys()
         # let monsters take their turn
         if game_state == 'playing' and player_action != 'didnt-take-turn':
-            for object in map.objects:
+            for object in map._objects:
                 if object != player and object.ai != None:
                     object.ai.take_turn(map, player)
             # deplete torch
@@ -312,7 +308,7 @@ def save_game():
     file = open('savegame', 'wb')
     data = {}
     data['map'] = map
-    data['player_index'] = map.objects.index(player)
+    data['player_index'] = map._objects.index(player)
     data['game_msgs'] = game_msgs
     data['game_state'] = game_state
     print data
@@ -327,7 +323,7 @@ def load_game():
     file.close()
     print data
     map = data['map']
-    player = map.objects[data['player_index']]
+    player = map._objects[data['player_index']]
     game_msgs = data['game_msgs']
     game_state = data['game_state']
 

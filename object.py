@@ -14,6 +14,7 @@ class Object:
         self.fighter = fighter
         self.blocks = blocks
         self.inventory = []
+        self.map = None
         if self.fighter:  # let the fighter component know who owns it
             self.fighter.owner = self
 
@@ -34,7 +35,7 @@ class Object:
 
         # try to find an attackable object there
         target = None
-        for object in map.objects:
+        for object in map._objects:
             if object.x == x and object.y == y and object.fighter is not None:
                 target = object
                 break
@@ -49,14 +50,14 @@ class Object:
         self.move(self.x + dx, self.y + dy, map)
 
     def move(self, x, y, map):
-        for object in map.objects:
+        for object in map._objects:
             if object.x == x and object.y == y and object.blocks:
                 return
 
         if map.tile_at(x, y).blocked:
             return
 
-        for object in map.objects:
+        for object in map._objects:
             if object.blocks and object.x == x and object.y == y:
                 return
 
@@ -111,7 +112,7 @@ class Object:
         #Scan all the objects to see if there are objects that must be navigated around
         #Check also that the object isn't self or the target (so that the start and the end points are free)
         #The AI class handles the situation if self is next to the target so it will not use this A* function anyway
-        for obj in map.objects:
+        for obj in map._objects:
             if obj.blocks and obj != self and obj != target:
                 #Set the tile as a wall so it must be navigated around
                 libtcod.map_set_properties(fov, obj.x, obj.y, True, False)
@@ -156,8 +157,3 @@ class Object:
     def clear(self, con):
         # erase the character that represents this object
         libtcod.console_put_char(con, self.x, self.y, ' ', libtcod.BKGND_NONE)
-
-    def send_to_back(self, objects):
-        # make this object be drawn first, so all others appear above it if they're in the same tile.
-        objects.remove(self)
-        objects.insert(0, self)
