@@ -129,6 +129,9 @@ class DungeonGenerator:
             # add some contents to this room, such as monsters
             room = map.rooms[i]
             self.place_objects(map, room, player)
+            # grant some xp for discovering rooms
+            (x, y) = room.center()
+            map.tiles[x][y].xp_gain = 20
         map.set_fov()
 
     def place_objects(self, map, room, player):

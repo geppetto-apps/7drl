@@ -184,7 +184,7 @@ def inventory_menu(header):
 
 
 def render_all():
-    map.draw(con)
+    map.draw(con, player)
     for object in map.objects:
         if object != player:
             object.draw(con, map)

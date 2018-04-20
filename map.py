@@ -27,6 +27,7 @@ class Tile:
         self.block_sight = block_sight
         self.explored = False
         self.tunnel = False
+        self.xp_gain = 0
 
 
 class Map:
@@ -83,7 +84,7 @@ class Map:
     def tile_at(self, x, y):
         return self.tiles[x][y]
 
-    def draw(self, con):
+    def draw(self, con, player):
         for y in range(self.h):
             for x in range(self.w):
                 visible = libtcod.map_is_in_fov(self.fov_map, x, y)
@@ -117,4 +118,7 @@ class Map:
                         libtcod.console_put_char_ex(
                             con, x, y, tiles.floor_tile, tint, libtcod.black)
                     # since it's visible, explore it
-                    self.tiles[x][y].explored = True
+                    tile = self.tiles[x][y]
+                    if not tile.explored:
+                        player.fighter.grant_xp(tile.xp_gain)
+                        tile.explored = True
