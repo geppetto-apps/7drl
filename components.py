@@ -5,15 +5,17 @@ from sounds import play_sound
 
 class Fighter:
     # combat-related properties and methods (monster, player, NPC).
-    def __init__(self, hp, defense, power, xp=0, xp_gain=50, death_function=None):
+    def __init__(self, xp=0, xp_gain=50, hp_base=30, power_base=3,defense_base=0, death_function=None):
         self.owner = None
-        self.max_hp = hp
-        self.hp = hp
         self.xp = xp
         self.xp_gain = xp_gain
-        self.defense = defense
-        self.power = power
+        self.hp_base = hp_base
+        self.power_base = power_base
+        self.defense_base = defense_base
+
+        self.set_stats_from_level()
         self.death_function = death_function
+        self.hp = self.max_hp
 
     def take_damage(self, damage, attacker):
         # apply damage if possible
@@ -33,17 +35,17 @@ class Fighter:
 
         # a simple formula for attack damage
         damage = self.power - target.fighter.defense
-        
-        if damage > 0: 
+
+        if damage > 0:
             # make the target take some damage
             message(self.owner.name.capitalize() + ' attacks ' + target.name +
                     ' for ' + str(damage) + ' hit points.')
-            target.fighter.take_damage(damage, self)            
+            target.fighter.take_damage(damage, self)
         else:
             play_sound('miss.wav')
             message(self.owner.name.capitalize() + ' attacks ' + target.name +
                     ' but it has no effect!')
-            
+
     def heal(self, amount):
         # heal by the given amount, without going over the maximum
         self.hp += amount
@@ -54,6 +56,7 @@ class Fighter:
         level = self.level()
         self.xp += amount
         if self.level() > level:
+            self.set_stats_from_level()
             message('You leveled up!', libtcod.green)
             self.hp = self.max_hp
             play_sound('Levelup.wav')
@@ -77,6 +80,12 @@ class Fighter:
             xp += delta
             delta *= 1.1
         return int(xp)
+
+    def set_stats_from_level(self):
+        level = self.level()
+        self.max_hp = self.hp_base + (level - 1) * 10
+        self.defense = self.defense_base + level - 1
+        self.power = self.power_base + level
 
 
 class BasicMonster:
@@ -161,7 +170,7 @@ class Item:
         if len(player.inventory) >= 26:
             message('Your inventory is full, cannot pick up ' +
                     self.owner.name + '.', libtcod.red)
-            play_sound('wrong.wav')       
+            play_sound('wrong.wav')
         else:
             player.inventory.append(self.owner)
             map.objects.remove(self.owner)

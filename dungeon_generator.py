@@ -219,20 +219,16 @@ class DungeonGenerator:
                 distance = player.astar_distance_to(map, x, y)
                 if self.chance(80):
                     # create an orc
-                    defense = 0
-                    power = 2 + int(distance / 30)
                     fighter_component = Fighter(
-                        hp=10, defense=defense, power=power, death_function=monster_death)
+                        xp=int(distance), power_base=2, xp_gain=10, death_function=monster_death)
                     ai_component = BasicMonster()
 
                     monster = Object(x, y, tiles.orc_tile, 'orc', libtcod.desaturated_green,
                                      blocks=True, fighter=fighter_component, ai=ai_component)
                 else:
                     # create a troll
-                    defense = 1 + int(distance / 30)
-                    power = 4 + int(distance / 30)
                     fighter_component = Fighter(
-                        hp=16, defense=defense, power=power, death_function=monster_death)
+                        xp=int(distance), power_base=4, defense_base=1, xp_gain=20, death_function=monster_death)
                     ai_component = BasicMonster()
 
                     monster = Object(x, y, tiles.troll_tile, 'troll', libtcod.darker_green,

@@ -27,8 +27,7 @@ def new_game():
     global player, inventory, game_msgs, game_state
 
     # create object representing the player
-    fighter_component = Fighter(
-        hp=30, defense=2, power=5, death_function=player_death)
+    fighter_component = Fighter(power_base=8,defense_base=2,death_function=player_death)
     player = Object(0, 0, tiles.player_tile, 'player', libtcod.white,
                     blocks=True, fighter=fighter_component)
 
