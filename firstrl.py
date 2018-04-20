@@ -334,7 +334,7 @@ def load_game():
     file.close()
     map = data['map']
     player = map._objects[data['player_index']]
-    game_msgs = data['game_msgs']
+    game_msgs[:] = data['game_msgs']
     game_state = data['game_state']
 
     # Reset FOV after loading game
