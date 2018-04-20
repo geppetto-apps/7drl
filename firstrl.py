@@ -299,7 +299,7 @@ def play_game():
                 if map.torch_left == 0:
                     message('Your torch burned out', libtcod.orange)
         if player_action == 'exit':
-            # save_game()
+            save_game()
             break
 
 
@@ -311,7 +311,6 @@ def save_game():
     data['player_index'] = map._objects.index(player)
     data['game_msgs'] = game_msgs
     data['game_state'] = game_state
-    print data
     dill.dump(data, file)
     file.close()
 
@@ -321,7 +320,6 @@ def load_game():
     file = open('savegame', 'rb')
     data = dill.load(file)
     file.close()
-    print data
     map = data['map']
     player = map._objects[data['player_index']]
     game_msgs = data['game_msgs']
