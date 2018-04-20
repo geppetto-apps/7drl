@@ -1,6 +1,7 @@
 import libtcodpy as libtcod
 from message import message
 from sounds import play_sound
+from segment import track
 
 
 class Fighter:
@@ -26,6 +27,12 @@ class Fighter:
         if self.hp <= 0:
             attacker.grant_xp(self.xp_gain)
             function = self.death_function
+            victim = str.capitalize(self.owner.name)
+            attacker_name = str.capitalize(attacker.owner.name)
+            track(victim + ' Defeated ' + attacker_name, {
+                'victim_level': self.level(),
+                'attacker_level': attacker.level(),
+            })
             if function is not None:
                 function(self.owner)
 
@@ -55,9 +62,11 @@ class Fighter:
     def grant_xp(self, amount):
         level = self.level()
         self.xp += amount
-        if self.level() > level:
+        next_level = self.level()
+        if next_level > level:
             self.set_stats_from_level()
             message('You leveled up!', libtcod.green)
+            track('Player Leveled Up', { 'level': next_level })
             self.hp = self.max_hp
             play_sound('Levelup.wav')
 

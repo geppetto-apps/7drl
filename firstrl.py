@@ -11,7 +11,7 @@ from sounds import play_sound
 import tiles
 import dill
 import os.path
-
+from segment import init_tracking, track
 
 libtcod.console_set_custom_font(
     'sprites.png', libtcod.FONT_LAYOUT_ASCII_INROW)
@@ -49,6 +49,7 @@ def new_game():
 
     # a warm welcoming message!
     message('Welcome stranger! The tower is eager for your soul.', color_red)
+    track('Started Game')
 
 def player_death(player):
     # the game ended!
@@ -309,6 +310,7 @@ def play_game():
                 if map.torch_left == 0:
                     message('Your torch burned out', libtcod.orange)
         if player_action == 'exit':
+            track('Exited Game')
             save_game()
             break
 
@@ -339,9 +341,11 @@ def load_game():
     map.fov_map = libtcod.map_new(map.w, map.h)
     map.set_fov()
     map.fov_recompute(player)
+    track('Loaded Game')
 
 
 def main_menu():
+    track('Viewed Main Menu')
     img = libtcod.image_load('menu_background1.png')
 
     while not libtcod.console_is_window_closed():  # show the game's title, and some credits!
@@ -373,4 +377,5 @@ def main_menu():
             break
 
 
+init_tracking(menu)
 main_menu()
