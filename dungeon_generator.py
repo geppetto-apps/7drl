@@ -12,12 +12,32 @@ ROOM_MIN_SIZE = 8
 MAX_ROOMS = 20
 
 MAX_ROOM_MONSTERS = 5
-MAX_ROOM_ITEMS = 2
+MAX_ROOM_ITEMS = 3
 
-HEAL_AMOUNT = 4
+HEAL_AMOUNT = 8
 
 LIGHTNING_DAMAGE = 20
 LIGHTNING_RANGE = 5
+
+
+class MonsterGenerator:
+    @staticmethod
+    def orc(x, y, player, distance, monster_death):
+        fighter_component = Fighter(
+            xp=(int(distance)+player.fighter.xp), power_base=2, xp_gain=10, death_function=monster_death)
+        ai_component = BasicMonster()
+
+        return Object(x, y, tiles.orc_tile, 'orc', libtcod.desaturated_green,
+                            blocks=True, fighter=fighter_component, ai=ai_component)
+
+    @staticmethod
+    def troll(x, y, player, distance, monster_death):
+        fighter_component = Fighter(
+            xp=(int(distance)+player.fighter.xp), power_base=4, defense_base=1, xp_gain=20, death_function=monster_death)
+        ai_component = BasicMonster()
+
+        return Object(x, y, tiles.troll_tile, 'troll', libtcod.darker_green,
+                            blocks=True, fighter=fighter_component, ai=ai_component)
 
 
 class DungeonGenerator:
@@ -199,12 +219,13 @@ class DungeonGenerator:
             monster.fighter = None
             monster.ai = None
             if monster.name == 'orc':
-                # 50 % chance of dropping potion
-                if self.chance(50):
+                # 25 % chance of dropping potion
+                if self.chance(25):
                     message(monster.name.capitalize() +
                             ' dropped healing potion!', libtcod.light_amber)
                     item = self.place_potion(cast_heal, monster.x, monster.y)
                     map.objects.append(item)
+                    item.send_to_back(map.objects)
             monster.name = 'remains of ' + monster.name
             monster.send_to_back(map.objects)
 
@@ -222,20 +243,10 @@ class DungeonGenerator:
                 distance = player.astar_distance_to(map, x, y)
                 if self.chance(80):
                     # create an orc
-                    fighter_component = Fighter(
-                        xp=int(distance), power_base=2, xp_gain=10, death_function=monster_death)
-                    ai_component = BasicMonster()
-
-                    monster = Object(x, y, tiles.orc_tile, 'orc', libtcod.desaturated_green,
-                                     blocks=True, fighter=fighter_component, ai=ai_component)
+                    monster = MonsterGenerator.orc(x, y, player, distance, monster_death)
                 else:
                     # create a troll
-                    fighter_component = Fighter(
-                        xp=int(distance), power_base=4, defense_base=1, xp_gain=20, death_function=monster_death)
-                    ai_component = BasicMonster()
-
-                    monster = Object(x, y, tiles.troll_tile, 'troll', libtcod.darker_green,
-                                     blocks=True, fighter=fighter_component, ai=ai_component)
+                    monster = MonsterGenerator.troll(x, y, player, distance, monster_death)
 
                 map.objects.append(monster)
 
@@ -250,7 +261,7 @@ class DungeonGenerator:
             # only place it if the tile is not blocked
             if not map.tile_at(x, y).blocked:
                 item = None
-                if self.chance(70):
+                if self.chance(50):
                     # create a healing potion (70 % chance)
                     item = self.place_potion(cast_heal, x, y)
                 elif self.chance(50):
