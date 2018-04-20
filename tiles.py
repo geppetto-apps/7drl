@@ -1,6 +1,6 @@
 player_tile = 204
 wall_tile = 182
-floor_tile = 181
+floor_tile = 179
 orc_tile = 218
 skeleton_tile = 212
 scroll_tile = 187
