@@ -4,6 +4,7 @@ from map import Map
 from components import Fighter, Item
 from message import game_msgs, message
 from constants import *
+from colors import *
 from dungeon_generator import DungeonGenerator
 from envparse import env
 from sounds import play_sound
@@ -24,7 +25,7 @@ generator = DungeonGenerator(env.int('SEED', default=None))
 
 
 def new_game():
-    global player, inventory, game_msgs, game_state
+    global player, game_msgs, game_state
 
     # create object representing the player
     fighter_component = Fighter(power_base=8,defense_base=2,death_function=player_death)
@@ -37,12 +38,12 @@ def new_game():
     game_state = 'playing'
 
     # a warm welcoming message!
-    message('Welcome stranger! Prepare to perish in the Tombs of the Ancient Kings.', libtcod.red)
+    message('Welcome stranger! The tower is eager for your soul.', color_red)
 
 def player_death(player):
     # the game ended!
     global game_state
-    message('You died!', libtcod.dark_red)
+    message('You died!', color_red)
     game_state = 'dead'
 
     # for added effect, transform the player into a corpse!
@@ -59,6 +60,7 @@ def make_map(**kargs):
     generator.generate(map, player, **kargs)
     map.fov_recompute(player)
     # unexplored areas start black (which is the default background color)
+    libtcod.console_set_default_background(panel, color_black)
     libtcod.console_clear(con)
 
 
@@ -194,7 +196,7 @@ def render_all():
     libtcod.console_blit(con, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0)
 
     # prepare to render the GUI panel
-    libtcod.console_set_default_background(panel, libtcod.black)
+    libtcod.console_set_default_background(panel, color_black)
     libtcod.console_clear(panel)
 
     # print the game messages, one line at a time
