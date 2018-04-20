@@ -116,7 +116,7 @@ class MonsterGenerator:
             xp=(int(distance)+player.fighter.xp), power_base=2, xp_gain=10, death_function=monster_death)
         ai_component = BasicMonster()
 
-        return Object(x, y, tiles.orc_tile, 'orc', libtcod.desaturated_green,
+        return Object(x, y, tiles.orc_tile, 'orc', libtcod.white,
                             blocks=True, fighter=fighter_component, ai=ai_component)
 
     @staticmethod
