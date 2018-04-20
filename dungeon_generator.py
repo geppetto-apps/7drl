@@ -120,12 +120,12 @@ class MonsterGenerator:
                             blocks=True, fighter=fighter_component, ai=ai_component)
 
     @staticmethod
-    def troll(x, y, player, distance, monster_death):
+    def skeleton(x, y, player, distance, monster_death):
         fighter_component = Fighter(
             xp=(int(distance)+player.fighter.xp), power_base=4, defense_base=1, xp_gain=20, death_function=monster_death)
         ai_component = BasicMonster()
 
-        return Object(x, y, tiles.troll_tile, 'troll', libtcod.darker_green,
+        return Object(x, y, tiles.skeleton_tile, 'skeleton', libtcod.white,
                             blocks=True, fighter=fighter_component, ai=ai_component)
 
 
@@ -260,8 +260,8 @@ class DungeonGenerator:
                     # create an orc
                     monster = MonsterGenerator.orc(x, y, player, distance, monster_death)
                 else:
-                    # create a troll
-                    monster = MonsterGenerator.troll(x, y, player, distance, monster_death)
+                    # create a skeleton
+                    monster = MonsterGenerator.skeleton(x, y, player, distance, monster_death)
 
                 map.add_object(monster)
 
