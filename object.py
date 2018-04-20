@@ -118,7 +118,7 @@ class Object:
 
         #Allocate a A* path
         #The 1.41 is the normal diagonal cost of moving, it can be set as 0.0 if diagonal moves are prohibited
-        return libtcod.path_new_using_map(fov, 1.41)
+        return libtcod.path_new_using_map(fov, 0)
 
     def distance_to(self, x, y=None):
         if y == None:
