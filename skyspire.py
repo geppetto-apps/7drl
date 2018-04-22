@@ -222,7 +222,9 @@ def render_all():
     render_bar(1, 2, BAR_WIDTH, 'XP', player.fighter.xp, next_xp,
                libtcod.light_blue, libtcod.darker_blue, minimum=curr_xp)
     libtcod.console_print_ex(
-        panel, 1, 3, libtcod.BKGND_NONE, libtcod.LEFT, player.display_name())
+        panel, 1, 3, libtcod.BKGND_NONE, libtcod.LEFT, str.capitalize(player.display_name()))
+    libtcod.console_print_ex(
+        panel, 1, 4, libtcod.BKGND_NONE, libtcod.LEFT, 'Floor ' + str(map.floor))
 
     # display names of objects under the mouse
     libtcod.console_set_default_foreground(panel, libtcod.light_gray)
