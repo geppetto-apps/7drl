@@ -139,6 +139,6 @@ class Map:
                         tile.explored = True
         for object in self._objects:
             if object != player:
-                if DEBUG or ibtcod.map_is_in_fov(self.fov_map, object.x, object.y):
+                if DEBUG or libtcod.map_is_in_fov(self.fov_map, object.x, object.y):
                     object.draw(con)
         player.draw(con)
