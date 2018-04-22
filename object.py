@@ -50,20 +50,19 @@ class Object:
         self.move(self.x + dx, self.y + dy, map)
 
     def move(self, x, y, map):
-        for object in map._objects:
-            if object.x == x and object.y == y and object.blocks:
+        try:
+            if map.tile_at(x, y).blocked:
                 return
 
-        if map.tile_at(x, y).blocked:
-            return
+            for object in map._objects:
+                if object.blocks and object.x == x and object.y == y:
+                    return
 
-        for object in map._objects:
-            if object.blocks and object.x == x and object.y == y:
-                return
-
-        # move by the given amount
-        self.x = x
-        self.y = y
+            # move by the given amount
+            self.x = x
+            self.y = y
+        except IndexError:
+            return False
 
     def move_towards(self, target_x, target_y, map):
         # vector from this object to the target, and distance
