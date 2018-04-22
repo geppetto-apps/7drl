@@ -6,6 +6,7 @@ from object import Object
 from sounds import play_sound
 import tiles
 import random
+import math
 
 ROOM_MAX_SIZE = 20
 ROOM_MIN_SIZE = 6
@@ -236,7 +237,14 @@ class DungeonGenerator:
             # all rooms after the first:
             # connect it to the previous room with a tunnel
             # center coordinates of previous room
-            (prev_x, prev_y) = map.rooms[map.num_rooms-1].center()
+            def sort_fn(room):
+                (x, y) = room.center()
+                dx = new_x - x
+                dy = new_y - y
+                return math.sqrt(dx ** 2 + dy ** 2)
+
+            map.rooms.sort(key=sort_fn)
+            (prev_x, prev_y) = map.rooms[0].center()
             map.create_tunnel(prev_x, prev_y, new_x, new_y)
 
         # finally, append the new room to the list
