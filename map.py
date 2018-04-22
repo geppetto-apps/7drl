@@ -6,6 +6,7 @@ from message import message
 from constants import *
 from envparse import env
 import tiles
+import random
 
 color_dark_wall = libtcod.Color(0, 0, 100)
 color_dark_ground = libtcod.Color(50, 50, 150)
@@ -61,18 +62,50 @@ class Map:
         self.tiles[room.x2 - 1][room.y2 - 1].blocked = True
         self.tiles[room.x2 - 1][room.y2 - 1].block_sight = True
 
-    def create_h_tunnel(self, x1, x2, y):
-        for x in range(min(x1, x2), max(x1, x2) + 1):
-            self.tiles[x][y].blocked = False
-            self.tiles[x][y].block_sight = False
-            self.tiles[x][y].tunnel = True
+    def create_tunnel(self, x1, y1, x2, y2):
+        dx = x2 - x1
+        dy = y2 - y1
 
-    def create_v_tunnel(self, y1, y2, x):
-        # vertical tunnel
-        for y in range(min(y1, y2), max(y1, y2) + 1):
+        coords = []
+        if abs(dx) > abs(dy):
+            steps = abs(dx)
+        else:
+            steps = abs(dy)
+        for n in range(steps):
+            x = float(dx) / float(steps)
+            y = float(dy) / float(steps)
+            coords.append([x, y])
+        elected = coords[:]
+        random.shuffle(elected)
+        for index, coord in enumerate(elected):
+            if index % 2 == 0:
+                coord[0] *= 0
+                coord[1] *= 2
+            else:
+                coord[0] *= 2
+                coord[1] *= 0
+
+        current = [x1, y1]
+        for (x, y) in coords:
+            current[0] += x
+            current[1] += y
+            self.carve(*current)
+
+    def carve(self, x, y):
+        self.carve_tile(x, y)
+        self.carve_tile(x, y+1)
+        self.carve_tile(x+1, y)
+        self.carve_tile(x+1, y+1)
+
+    def carve_tile(self, x, y):
+        try:
+            x = int(x)
+            y = int(y)
             self.tiles[x][y].blocked = False
             self.tiles[x][y].block_sight = False
             self.tiles[x][y].tunnel = True
+        except IndexError:
+            return False
 
     def set_fov(self):
         for y in range(self.h):

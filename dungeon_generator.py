@@ -235,19 +235,9 @@ class DungeonGenerator:
         if map.num_rooms != 0:
             # all rooms after the first:
             # connect it to the previous room with a tunnel
-
             # center coordinates of previous room
             (prev_x, prev_y) = map.rooms[map.num_rooms-1].center()
-
-            # draw a coin (random number that is either 0 or 1)
-            if self.random_int(0, 1) == 1:
-                # first move horizontally, then vertically
-                map.create_h_tunnel(prev_x, new_x, prev_y)
-                map.create_v_tunnel(prev_y, new_y, new_x)
-            else:
-                # first move vertically, then horizontally
-                map.create_v_tunnel(prev_y, new_y, prev_x)
-                map.create_h_tunnel(prev_x, new_x, new_y)
+            map.create_tunnel(prev_x, prev_y, new_x, new_y)
 
         # finally, append the new room to the list
         map.rooms.append(new_room)
