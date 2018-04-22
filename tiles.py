@@ -11,6 +11,7 @@ sword_tile = 107
 shield_tile = 104
 stairsdown_tile = 183
 dagger_tile = 211
+wizard_tile = 196
 
 striked_player_tile = 203
 lava_tile = 180

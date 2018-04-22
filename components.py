@@ -132,7 +132,7 @@ class AggroState:
             return
 
         # move towards player if far away
-        if monster.distance_to(player) >= 2:
+        if monster.distance_to(player) >= self.ai.atk_range:
             monster.move_astar(player, map)
 
         # close enough, attack! (if the player is still alive.)
@@ -140,9 +140,10 @@ class AggroState:
             monster.fighter.attack(player)
 
 class BasicMonster:
-    def __init__(self):
+    def __init__(self, atk_range=2):
         self.owner = None
         self.state = IdleState(self)
+        self.atk_range = atk_range
 
     def take_turn(self, map, player):
         self.state.take_turn(map, player)

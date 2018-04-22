@@ -128,6 +128,14 @@ class MonsterGenerator:
         return Object(x, y, tiles.skeleton_tile, 'skeleton', libtcod.white,
                             blocks=True, fighter=fighter_component, ai=ai_component)
 
+    @staticmethod
+    def wizard(x, y, player, distance, monster_death):
+        fighter_component = Fighter(
+            xp=(int(distance)+player.fighter.xp), power_base=4, defense_base=1, xp_gain=20, death_function=monster_death)
+        ai_component = BasicMonster(atk_range=6)
+
+        return Object(x, y, tiles.wizard_tile, 'wizard', libtcod.white,
+                            blocks=True, fighter=fighter_component, ai=ai_component)
 
 class DungeonGenerator:
     def __init__(self, seed=None):
@@ -256,12 +264,15 @@ class DungeonGenerator:
             # only place it if the tile is not blocked
             if not map.tile_at(x, y).blocked:
                 distance = player.astar_distance_to(map, x, y)
-                if self.chance(80):
+                dice = self.random_int(0, 100)
+                if dice < 80:
                     # create an orc
                     monster = MonsterGenerator.orc(x, y, player, distance, monster_death)
-                else:
+                elif dice < 90:
                     # create a skeleton
                     monster = MonsterGenerator.skeleton(x, y, player, distance, monster_death)
+                else:
+                    monster = MonsterGenerator.wizard(x, y, player, distance, monster_death)
 
                 map.add_object(monster)
 
