@@ -78,7 +78,7 @@ def monster_death(monster):
     # transform it into a nasty corpse! it doesn't block, can't be
     # attacked and doesn't move
     message(monster.name.capitalize() + ' is dead!', libtcod.green)
-    monster.char = tiles.tomb_tile
+    monster.chars = [tiles.tomb_tile]
     play_sound('Monsterkill.wav')
     monster.color = libtcod.white
     monster.blocks = False

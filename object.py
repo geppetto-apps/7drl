@@ -8,7 +8,7 @@ class Object:
     def __init__(self, x, y, char, name, color, blocks=False, fighter=None, ai=None, item=None, ladder=None):
         self.x = x
         self.y = y
-        self.char = char
+        self.chars = [char]
         self.color = color
         self.name = name
         self.fighter = fighter
@@ -152,7 +152,7 @@ class Object:
             # set the color and then draw the character that represents this object at its position
             libtcod.console_set_default_foreground(con, self.color)
             libtcod.console_put_char(
-                con, self.x, self.y, self.char, libtcod.BKGND_NONE)
+                con, self.x, self.y, self.chars[0], libtcod.BKGND_NONE)
 
     def clear(self, con):
         # erase the character that represents this object
