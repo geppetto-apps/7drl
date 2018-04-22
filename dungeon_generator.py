@@ -7,8 +7,8 @@ from sounds import play_sound
 import tiles
 import random
 
-ROOM_MAX_SIZE = 14
-ROOM_MIN_SIZE = 8
+ROOM_MAX_SIZE = 20
+ROOM_MIN_SIZE = 6
 MAX_ROOMS = 20
 
 MAX_ROOM_MONSTERS = 5
