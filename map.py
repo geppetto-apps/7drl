@@ -4,6 +4,7 @@ from object import Object
 from components import Fighter, BasicMonster
 from message import message
 from constants import *
+from envparse import env
 import tiles
 
 color_dark_wall = libtcod.Color(0, 0, 100)
@@ -15,6 +16,7 @@ color_dark_ground = libtcod.Color(50, 50, 150)
 color_medium_ground = libtcod.Color(125, 115, 100)
 color_light_ground = libtcod.Color(200, 180, 50)
 
+DEBUG = env.bool('DEBUG', default=False)
 
 class Tile:
     # a tile of the map and its properties
@@ -102,7 +104,7 @@ class Map:
             for x in range(self.w):
                 visible = libtcod.map_is_in_fov(self.fov_map, x, y)
                 wall = self.tiles[x][y].block_sight
-                if not visible:
+                if not visible and not DEBUG:
                     # if it's not visible right now, the player can only see it if it's explored
                     if self.tiles[x][y].explored:
                         # it's out of the player's FOV
@@ -137,5 +139,6 @@ class Map:
                         tile.explored = True
         for object in self._objects:
             if object != player:
-                object.draw(con, self)
-        player.draw(con, self)
+                if DEBUG or ibtcod.map_is_in_fov(self.fov_map, object.x, object.y):
+                    object.draw(con)
+        player.draw(con)

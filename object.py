@@ -147,14 +147,13 @@ class Object:
             return self.name
         return self.name + " (lvl " + str(self.fighter.level()) + ")"
 
-    def draw(self, con, map):
-        if libtcod.map_is_in_fov(map.fov_map, self.x, self.y):
-            # set the color and then draw the character that represents this object at its position
-            libtcod.console_set_default_foreground(con, self.color)
-            libtcod.console_put_char(
-                con, self.x, self.y, self.chars[0], libtcod.BKGND_NONE)
-            if len(self.chars) > 1:
-                self.chars.pop(0)
+    def draw(self, con):
+        # set the color and then draw the character that represents this object at its position
+        libtcod.console_set_default_foreground(con, self.color)
+        libtcod.console_put_char(
+            con, self.x, self.y, self.chars[0], libtcod.BKGND_NONE)
+        if len(self.chars) > 1:
+            self.chars.pop(0)
 
     def clear(self, con):
         # erase the character that represents this object
