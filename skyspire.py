@@ -38,7 +38,7 @@ def new_game():
 
 
     # create object representing the player
-    fighter_component = Fighter(power_base=10,defense_base=3,death_function=player_death)
+    fighter_component = Fighter(power_base=13,defense_base=5,death_function=player_death)
     player = Object(0, 0, tiles.player_tile, 'player', libtcod.white,
                     blocks=True, fighter=fighter_component)
 

@@ -131,7 +131,7 @@ class MonsterGenerator:
     @staticmethod
     def wizard(x, y, player, distance, monster_death):
         fighter_component = Fighter(
-            xp=(int(distance)+player.fighter.xp), power_base=4, defense_base=1, xp_gain=20, death_function=monster_death)
+            xp=(int(distance)+player.fighter.xp), power_base=2, defense_base=0, xp_gain=30, death_function=monster_death)
         ai_component = BasicMonster(atk_range=6)
 
         return Object(x, y, tiles.wizard_tile, 'wizard', libtcod.white,
