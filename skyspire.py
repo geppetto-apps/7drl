@@ -321,7 +321,8 @@ def play_game():
                     message('Your torch burned out', libtcod.orange)
         if player_action == 'exit':
             track('Exited Game')
-            save_game()
+            if player.fighter.hp > 0:
+                save_game()
             break
 
 
