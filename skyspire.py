@@ -11,6 +11,7 @@ from sounds import play_sound
 import tiles
 import dill
 import os.path
+from collections import defaultdict
 from segment import init_tracking, track
 
 libtcod.console_set_custom_font(
@@ -182,17 +183,24 @@ def menu(header, options, width):
 def inventory_menu(header):
     inventory = player.inventory
     # show a menu with each item of the inventory as an option
-    if len(inventory) == 0:
+    d = defaultdict(list)
+    for item in inventory:
+        d[item.name].append(item)
+    options = []
+    for key in d.keys():
+        options.append(key + " (" + str(len(d[key])) + ")")
+    if len(options) == 0:
         options = ['Inventory is empty.']
-    else:
-        options = [item.name for item in inventory]
-
-    index = menu(header, options, INVENTORY_WIDTH)
-    # if an item was chosen, return it
-    if index is None or len(inventory) == 0:
+    try:
+        index = menu(header, options, INVENTORY_WIDTH)
+        if index is None:
+            return None
+        # if an item was chosen, return it
+        key = str.split(options[index], ' (')[0]
+        item = d[key][0].item
+        return item
+    except IndexError:
         return None
-    return inventory[index].item
-
 
 def render_all():
     map.draw(con, player)
