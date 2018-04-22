@@ -61,12 +61,12 @@ def player_death(player):
     player.char = tiles.playertomb_tile
     play_sound('Dead.wav')
 
-def make_map(**kargs):
+def make_map(floor=1,**kargs):
     global map
 
     # the list of objects with just the player
 
-    map = Map(MAP_WIDTH, MAP_HEIGHT)
+    map = Map(MAP_WIDTH, MAP_HEIGHT, floor)
     map.add_object(player)
     generator.generate(map, player, **kargs)
     map.fov_recompute(player)
@@ -117,7 +117,7 @@ def handle_keys():
                 # pick up an item
                 for object in map._objects:  # look for an item in the player's tile
                     if object.x == player.x and object.y == player.y and object.ladder:
-                        make_map(start_x=player.x, start_y=player.y)
+                        make_map(floor=map.floor+1, start_x=player.x, start_y=player.y)
                         break
 
             if key_char == 'i':

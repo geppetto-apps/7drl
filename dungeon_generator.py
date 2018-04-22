@@ -264,11 +264,11 @@ class DungeonGenerator:
             # only place it if the tile is not blocked
             if not map.tile_at(x, y).blocked:
                 distance = player.astar_distance_to(map, x, y)
-                dice = self.random_int(0, 100)
-                if dice < 80:
+                dice = self.random_int(0, 50) + (map.floor - 1) * 10
+                if dice < 40:
                     # create an orc
                     monster = MonsterGenerator.orc(x, y, player, distance, monster_death)
-                elif dice < 90:
+                elif dice < 50:
                     # create a skeleton
                     monster = MonsterGenerator.skeleton(x, y, player, distance, monster_death)
                 else:

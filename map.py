@@ -31,11 +31,12 @@ class Tile:
 
 
 class Map:
-    def __init__(self, w, h):
+    def __init__(self, w, h, floor):
         self.w = w
         self.h = h
         self.rooms = []
         self.num_rooms = 0
+        self.floor = floor
         self.fov_map = libtcod.map_new(self.w, self.h)
         self.torch_left = 10000
         self._objects = []
