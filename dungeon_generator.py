@@ -145,61 +145,12 @@ class DungeonGenerator:
         random.seed(self.seed)
 
     def generate(self, map, player, start_x=None, start_y=None):
-        for _ in range(MAX_ROOMS):
-            # random width and height
-            w = libtcod.random_get_int(
-                self.random, ROOM_MIN_SIZE, ROOM_MAX_SIZE)
-            h = libtcod.random_get_int(
-                self.random, ROOM_MIN_SIZE, ROOM_MAX_SIZE)
-            # random position without going out of the boundaries of the map
-            if start_x != None and start_y != None:
-                x = start_x - w / 2
-                y = start_y - h / 2
+        room_tries = 0
+        while map.num_rooms < MAX_ROOMS and room_tries < MAX_ROOMS * 10:
+            if self.generate_room(map, start_x, start_y):
                 start_x = None
                 start_y = None
-            else:
-                x = self.random_int(0, map.w - w - 1)
-                y = self.random_int(0, map.h - h - 1)
-
-            # "Rect" class makes rectangles easier to work with
-            new_room = Rect(x, y, w, h)
-
-            # run through the other rooms and see if they intersect with this one
-            failed = False
-            for other_room in map.rooms:
-                if new_room.intersect(other_room):
-                    failed = True
-                    break
-
-            if not failed:
-                # this means there are no intersections, so this room is valid
-
-                # "paint" it to the map's tiles
-                map.create_room(new_room)
-
-                # center coordinates of new room, will be useful later
-                (new_x, new_y) = new_room.center()
-
-                if map.num_rooms != 0:
-                    # all rooms after the first:
-                    # connect it to the previous room with a tunnel
-
-                    # center coordinates of previous room
-                    (prev_x, prev_y) = map.rooms[map.num_rooms-1].center()
-
-                    # draw a coin (random number that is either 0 or 1)
-                    if self.random_int(0, 1) == 1:
-                        # first move horizontally, then vertically
-                        map.create_h_tunnel(prev_x, new_x, prev_y)
-                        map.create_v_tunnel(prev_y, new_y, new_x)
-                    else:
-                        # first move vertically, then horizontally
-                        map.create_v_tunnel(prev_y, new_y, prev_x)
-                        map.create_h_tunnel(prev_x, new_x, new_y)
-
-                # finally, append the new room to the list
-                map.rooms.append(new_room)
-                map.num_rooms += 1
+            room_tries += 1
         for x in range(0, map.w):
             for y in range(0, map.h):
                 tile = map.tiles[x][y]
@@ -250,6 +201,58 @@ class DungeonGenerator:
             (x, y) = room.center()
             map.tiles[x][y].xp_gain = 20
         map.set_fov()
+
+    def generate_room(self, map, start_x, start_y):
+        # random width and height
+        w = libtcod.random_get_int(
+            self.random, ROOM_MIN_SIZE, ROOM_MAX_SIZE)
+        h = libtcod.random_get_int(
+            self.random, ROOM_MIN_SIZE, ROOM_MAX_SIZE)
+        # random position without going out of the boundaries of the map
+        if start_x != None and start_y != None:
+            x = start_x - w / 2
+            y = start_y - h / 2
+        else:
+            x = self.random_int(0, map.w - w - 1)
+            y = self.random_int(0, map.h - h - 1)
+
+        # "Rect" class makes rectangles easier to work with
+        new_room = Rect(x, y, w, h)
+
+        # run through the other rooms and see if they intersect with this one
+        for other_room in map.rooms:
+            if new_room.intersect(other_room):
+                return False
+
+        # this means there are no intersections, so this room is valid
+
+        # "paint" it to the map's tiles
+        map.create_room(new_room)
+
+        # center coordinates of new room, will be useful later
+        (new_x, new_y) = new_room.center()
+
+        if map.num_rooms != 0:
+            # all rooms after the first:
+            # connect it to the previous room with a tunnel
+
+            # center coordinates of previous room
+            (prev_x, prev_y) = map.rooms[map.num_rooms-1].center()
+
+            # draw a coin (random number that is either 0 or 1)
+            if self.random_int(0, 1) == 1:
+                # first move horizontally, then vertically
+                map.create_h_tunnel(prev_x, new_x, prev_y)
+                map.create_v_tunnel(prev_y, new_y, new_x)
+            else:
+                # first move vertically, then horizontally
+                map.create_v_tunnel(prev_y, new_y, prev_x)
+                map.create_h_tunnel(prev_x, new_x, new_y)
+
+        # finally, append the new room to the list
+        map.rooms.append(new_room)
+        map.num_rooms += 1
+        return True
 
     def place_objects(self, map, room, player):
         # choose random number of monsters
