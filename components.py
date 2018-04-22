@@ -6,13 +6,14 @@ from segment import track
 
 class Fighter:
     # combat-related properties and methods (monster, player, NPC).
-    def __init__(self, xp=0, xp_gain=50, hp_base=30, power_base=3,defense_base=0, death_function=None):
+    def __init__(self, xp=0, xp_gain=50, hp_base=30, power_base=3,defense_base=0, striked_char=None, death_function=None):
         self.owner = None
         self.xp = xp
         self.xp_gain = xp_gain
         self.hp_base = hp_base
         self.power_base = power_base
         self.defense_base = defense_base
+        self.striked_char = striked_char
 
         self.set_stats_from_level()
         self.death_function = death_function
@@ -22,6 +23,9 @@ class Fighter:
         # apply damage if possible
         if damage > 0:
             self.hp -= damage
+
+            if self.striked_char != None:
+                self.owner.chars.insert(0, self.striked_char)
             play_sound('hurt.wav')
         # check for death. if there's a death function, call it
         if self.hp <= 0:

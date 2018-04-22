@@ -153,6 +153,8 @@ class Object:
             libtcod.console_set_default_foreground(con, self.color)
             libtcod.console_put_char(
                 con, self.x, self.y, self.chars[0], libtcod.BKGND_NONE)
+            if len(self.chars) > 1:
+                self.chars.pop(0)
 
     def clear(self, con):
         # erase the character that represents this object

@@ -113,7 +113,7 @@ class MonsterGenerator:
     @staticmethod
     def orc(x, y, player, distance, monster_death):
         fighter_component = Fighter(
-            xp=(int(distance)+player.fighter.xp), power_base=2, xp_gain=10, death_function=monster_death)
+            xp=(int(distance)+player.fighter.xp), power_base=2, xp_gain=10, striked_char=tiles.striked_orc_tile, death_function=monster_death)
         ai_component = BasicMonster()
 
         return Object(x, y, tiles.orc_tile, 'orc', libtcod.white,
