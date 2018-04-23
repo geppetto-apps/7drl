@@ -59,7 +59,7 @@ def player_death(player):
     game_state = 'dead'
 
     # for added effect, transform the player into a corpse!
-    player.char = tiles.playertomb_tile
+    player.chars = [tiles.playertomb_tile]
     play_sound('Dead.wav')
 
 def make_map(floor=1,**kargs):
