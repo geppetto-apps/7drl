@@ -3,6 +3,10 @@ from message import message
 from sounds import play_sound
 from segment import track
 
+class Weapon:
+    def __init__(self, name, atk=1):
+        self.name = name
+        self.atk = atk
 
 class Fighter:
     # combat-related properties and methods (monster, player, NPC).
@@ -18,6 +22,7 @@ class Fighter:
         self.set_stats_from_level()
         self.death_function = death_function
         self.hp = self.max_hp
+        self.weapon = Weapon('Fists')
 
     def take_damage(self, damage, attacker):
         # apply damage if possible
@@ -45,7 +50,8 @@ class Fighter:
             return
 
         # a simple formula for attack damage
-        damage = libtcod.random_get_int(0, 0, self.power) - libtcod.random_get_int(0, 0, target.fighter.defense)
+        atk = self.power + self.weapon.atk
+        damage = libtcod.random_get_int(0, 0, atk) - libtcod.random_get_int(0, 0, target.fighter.defense)
 
         if damage > 0:
             # make the target take some damage
