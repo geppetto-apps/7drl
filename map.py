@@ -122,7 +122,7 @@ class Map:
 
     def add_object(self, object):
         object.map = self
-        self._objects.insert(0, object)
+        self._objects.append(object)
 
     def remove_object(self, object):
         object.map = None
@@ -130,7 +130,7 @@ class Map:
 
     def send_to_back(self, object):
         self.remove_object(object)
-        self.add_object(object)
+        self._objects.insert(0, object)
 
     def draw(self, con, player):
         for y in range(self.h):
