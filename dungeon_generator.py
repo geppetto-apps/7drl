@@ -117,7 +117,7 @@ def place_chest(x, y):
                     libtcod.white, chest=chest_component, blocks=True)
 
 def equip_sword(player):
-    player.fighter.weapon = Weapon('Steel Sword', 4)
+    player.fighter.weapon = Weapon('Steel Sword', 8)
 
 class MonsterGenerator:
     @staticmethod
