@@ -8,9 +8,9 @@ import tiles
 import random
 import math
 
-ROOM_MAX_SIZE = 20
+ROOM_MAX_SIZE = 15
 ROOM_MIN_SIZE = 6
-MAX_ROOMS = 20
+MAX_ROOMS = 15
 
 MAX_ROOM_MONSTERS = 5
 MAX_ROOM_ITEMS = 3
