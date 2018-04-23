@@ -232,7 +232,9 @@ def render_all():
     libtcod.console_print_ex(
         panel, 1, 3, libtcod.BKGND_NONE, libtcod.LEFT, str.capitalize(player.display_name()))
     libtcod.console_print_ex(
-        panel, 1, 4, libtcod.BKGND_NONE, libtcod.LEFT, 'Floor ' + str(map.floor))
+        panel, 1, 4, libtcod.BKGND_NONE, libtcod.LEFT, 'Weapon: ' + player.fighter.weapon.name)
+    libtcod.console_print_ex(
+        panel, 1, 5, libtcod.BKGND_NONE, libtcod.LEFT, 'Floor ' + str(map.floor))
 
     # display names of objects under the mouse
     libtcod.console_set_default_foreground(panel, libtcod.light_gray)
