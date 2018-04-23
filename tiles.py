@@ -6,6 +6,7 @@ striked_orc_tile = 217
 skeleton_tile = 212
 scroll_tile = 187
 chest_tile = 189
+open_chest_tile = 190
 healingpotion_tile = 184
 sword_tile = 107
 shield_tile = 104

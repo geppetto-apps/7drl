@@ -2,6 +2,7 @@ import libtcodpy as libtcod
 from message import message
 from sounds import play_sound
 from segment import track
+import tiles
 
 class Weapon:
     def __init__(self, name, atk=1):
@@ -221,3 +222,26 @@ class Ladder:
     # an item that can be picked up and used.
     def ascend(self, objects):
         self.use_function()
+
+class Chest:
+    def __init__(self, items=[]):
+        self.owner = None
+        self.items = items
+
+    def open(self):
+        self.owner.chest = None
+        map = self.owner.map
+        for n in range(len(self.items)):
+            for x in [self.owner.x-1, self.owner.x+1]:
+                for y in [self.owner.y-1, self.owner.y+1]:
+                    # Drop the item on the ground
+                    if not map.tile_at(x, y).blocked:
+                        if len(self.items) == 0:
+                            break
+                        item = self.items.pop()
+                        if item is None:
+                            break
+                        item.x = x
+                        item.y = y
+                        map.add_object(item)
+        self.owner.chars = [tiles.open_chest_tile]

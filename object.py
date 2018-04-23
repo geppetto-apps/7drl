@@ -5,7 +5,7 @@ import math
 class Object:
     # this is a generic object: the player, a monster, an item, the stairs...
     # it's always represented by a character on screen.
-    def __init__(self, x, y, char, name, color, blocks=False, fighter=None, ai=None, item=None, ladder=None):
+    def __init__(self, x, y, char, name, color, blocks=False, fighter=None, ai=None, item=None, ladder=None, chest=None):
         self.x = x
         self.y = y
         self.chars = [char]
@@ -27,6 +27,9 @@ class Object:
         self.ladder = ladder
         if self.ladder:# let the Ladder component know who owns it
             self.ladder.owner = self
+        self.chest = chest
+        if self.chest:# let the Chest component know who owns it
+            self.chest.owner = self
 
     def move_or_attack(self, dx, dy, map):
         # the coordinates the player is moving to/attacking
@@ -36,13 +39,16 @@ class Object:
         # try to find an attackable object there
         target = None
         for object in map._objects:
-            if object.x == x and object.y == y and object.fighter is not None:
+            if object.x == x and object.y == y and (object.chest is not None or object.fighter is not None):
                 target = object
                 break
 
         # attack if target found, move otherwise
         if target is not None:
-            self.fighter.attack(target)
+            if target.fighter is not None:
+                self.fighter.attack(target)
+            elif target.chest is not None:
+                target.chest.open()
         else:
             self.move(x, y, map)
 

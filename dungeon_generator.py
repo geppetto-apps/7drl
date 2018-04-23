@@ -1,5 +1,5 @@
 import libtcodpy as libtcod
-from components import Fighter, BasicMonster, Item, ConfusedMonster, Ladder
+from components import Fighter, BasicMonster, Item, ConfusedMonster, Ladder, Chest, Weapon
 from rect import Rect
 from message import message
 from object import Object
@@ -105,10 +105,19 @@ def place_bolt(cast_fn, x, y):
     return Object(x, y, tiles.scroll_tile, 'scroll of lightning bolt',
                     libtcod.white, item=item_component)
 
-def place_chest(open_fn, x, y):
-    item_component = Item(use_function=open_fn)
-    return Object(x, y, tiles.chest_tile, 'chest',
+def place_sword(use_fn, x, y):
+    item_component = Item(use_function=use_fn)
+    return Object(x, y, tiles.sword_tile, 'steel sword',
                     libtcod.white, item=item_component)
+
+def place_chest(x, y):
+    item = place_sword(equip_sword, 0, 0)
+    chest_component = Chest([item])
+    return Object(x, y, tiles.chest_tile, 'chest',
+                    libtcod.white, chest=chest_component, blocks=True)
+
+def equip_sword(player):
+    player.fighter.weapon = Weapon('Steel Sword', 4)
 
 class MonsterGenerator:
     @staticmethod
@@ -186,13 +195,10 @@ class DungeonGenerator:
         ladder = Object(x, y, tiles.stairsdown_tile, 'stairs', libtcod.white, ladder=ladder_component)
         map.add_object(ladder)
 
-        def open_fn(player):
-            print('opening chest')
-
-        # place chests
-        for room in last_rooms:
+        # place chest
+        for room in last_rooms[0:1]:
             (x, y) = room.center()
-            # map.add_object(place_chest(open_fn, x, y))
+            map.add_object(place_chest(x, y))
 
         for i in range(1, map.num_rooms):
             # add some contents to this room, such as monsters
