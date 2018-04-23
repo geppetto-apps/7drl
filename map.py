@@ -149,20 +149,12 @@ class Map:
                                 con, x, y, tiles.floor_tile, libtcod.darker_gray, libtcod.black)
                 else:
                     # it's visible
+                    distance = int(player.distance_to(x, y) * 16)
+                    tint = libtcod.Color(255-distance, 249-distance, 249-distance)
                     if wall:
-                        tint = libtcod.white
-                        if self.torch_left == 0:
-                            tint = libtcod.gray
-                        elif self.torch_left < 50:
-                            tint = libtcod.dark_gray
                         libtcod.console_put_char_ex(
                             con, x, y, tiles.wall_tile, tint, libtcod.black)
                     else:
-                        tint = libtcod.white
-                        if self.torch_left == 0:
-                            tint = libtcod.gray
-                        elif self.torch_left < 50:
-                            tint = libtcod.dark_gray
                         libtcod.console_put_char_ex(
                             con, x, y, tiles.floor_tile, tint, libtcod.black)
                     # since it's visible, explore it
@@ -173,5 +165,6 @@ class Map:
         for object in self._objects:
             if object != player:
                 if DEBUG or libtcod.map_is_in_fov(self.fov_map, object.x, object.y):
-                    object.draw(con)
-        player.draw(con)
+                    distance = int(player.distance_to(object) * 16)
+                    object.draw(con, distance)
+        player.draw(con, 0)
