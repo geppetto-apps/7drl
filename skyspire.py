@@ -203,6 +203,7 @@ def inventory_menu(header):
         return None
 
 def render_all():
+    libtcod.console_clear(0)
     map.draw(con, player)
     libtcod.console_blit(con, player.x-SCREEN_WIDTH/2, player.y-PANEL_Y/2, SCREEN_WIDTH, PANEL_Y, 0, 0, 0)
 
@@ -296,7 +297,6 @@ def play_game():
 
     mouse = libtcod.Mouse()
     key = libtcod.Key()
-    libtcod.console_clear(0)
     while not libtcod.console_is_window_closed():
         libtcod.console_set_default_foreground(con, libtcod.white)
         libtcod.sys_check_for_event(
