@@ -177,10 +177,10 @@ class DungeonGenerator:
             (x, y) = room.center()
             return player.astar_distance_to(map, x, y)
 
-        map.rooms.sort(key=sort_fn)
+        sorted_rooms = sorted(map.rooms, key=sort_fn)
 
         # get the 3 last rooms
-        last_rooms = map.rooms[-3:]
+        last_rooms = sorted_rooms[-3:]
         random.shuffle(last_rooms)
 
         # put the ladder in one of the last rooms
@@ -239,18 +239,21 @@ class DungeonGenerator:
         # center coordinates of new room, will be useful later
         (new_x, new_y) = new_room.center()
 
-        if map.num_rooms != 0:
-            # all rooms after the first:
+        if map.num_rooms == 1:
+            # Connect to the first room:
+            (prev_x, prev_y) = map.rooms[0].center()
+            map.create_tunnel(prev_x, prev_y, new_x, new_y)
+        elif map.num_rooms > 1:
+            # For the rest of the rooms:
             # connect it to the previous room with a tunnel
-            # center coordinates of previous room
+            # center coordinates of a random room (except first)
             def sort_fn(room):
                 (x, y) = room.center()
                 dx = new_x - x
                 dy = new_y - y
                 return math.sqrt(dx ** 2 + dy ** 2)
-
-            map.rooms.sort(key=sort_fn)
-            (prev_x, prev_y) = map.rooms[0].center()
+            sorted_rooms = sorted(map.rooms[1:], key=sort_fn)
+            (prev_x, prev_y) = sorted_rooms[0].center()
             map.create_tunnel(prev_x, prev_y, new_x, new_y)
 
         # finally, append the new room to the list
