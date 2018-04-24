@@ -18,7 +18,7 @@ libtcod.console_set_custom_font(
     'sprites.png', libtcod.FONT_LAYOUT_ASCII_INROW)
 libtcod.console_init_root(SCREEN_WIDTH, SCREEN_HEIGHT,
                           'python/libtcod tutorial', False)
-con = libtcod.console_new(SCREEN_WIDTH, SCREEN_HEIGHT)
+con = libtcod.console_new(MAP_WIDTH, MAP_HEIGHT)
 libtcod.sys_set_fps(LIMIT_FPS)
 
 panel = libtcod.console_new(SCREEN_WIDTH, PANEL_HEIGHT)
@@ -204,11 +204,7 @@ def inventory_menu(header):
 
 def render_all():
     map.draw(con, player)
-    # show the player's stats
-    libtcod.console_set_default_foreground(con, libtcod.white)
-    libtcod.console_print_ex(con, 1, SCREEN_HEIGHT - 2, libtcod.BKGND_NONE, libtcod.LEFT,
-                             'HP: ' + str(player.fighter.hp) + '/' + str(player.fighter.max_hp) + '  ')
-    libtcod.console_blit(con, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0)
+    libtcod.console_blit(con, player.x-SCREEN_WIDTH/2, player.y-PANEL_Y/2, SCREEN_WIDTH, PANEL_Y, 0, 0, 0)
 
     # prepare to render the GUI panel
     libtcod.console_set_default_background(panel, color_black)
@@ -300,6 +296,7 @@ def play_game():
 
     mouse = libtcod.Mouse()
     key = libtcod.Key()
+    libtcod.console_clear(0)
     while not libtcod.console_is_window_closed():
         libtcod.console_set_default_foreground(con, libtcod.white)
         libtcod.sys_check_for_event(
