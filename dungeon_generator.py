@@ -8,8 +8,9 @@ import tiles
 import random
 import math
 
-ROOM_MAX_SIZE = 15
-ROOM_MIN_SIZE = 6
+ROOM_MAX_SIZE = 20
+MEAN_ROOM_SIZE = 10
+ROOM_MIN_SIZE = 4
 MAX_ROOMS = 15
 
 MAX_ROOM_MONSTERS = 5
@@ -211,10 +212,10 @@ class DungeonGenerator:
 
     def generate_room(self, map, start_x, start_y):
         # random width and height
-        w = libtcod.random_get_int(
-            self.random, ROOM_MIN_SIZE, ROOM_MAX_SIZE)
-        h = libtcod.random_get_int(
-            self.random, ROOM_MIN_SIZE, ROOM_MAX_SIZE)
+        w = libtcod.random_get_int_mean(
+            self.random, ROOM_MIN_SIZE, ROOM_MAX_SIZE, MEAN_ROOM_SIZE)
+        h = libtcod.random_get_int_mean(
+            self.random, ROOM_MIN_SIZE, ROOM_MAX_SIZE, MEAN_ROOM_SIZE)
         # random position without going out of the boundaries of the map
         if start_x != None and start_y != None:
             x = start_x - w / 2
