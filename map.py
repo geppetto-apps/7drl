@@ -133,10 +133,10 @@ class Map:
         self._objects.insert(0, object)
 
     def draw(self, con, player):
-        min_x = player.x - SCREEN_WIDTH / 2 - 2
-        max_x = player.x + SCREEN_WIDTH / 2 - 2
-        min_y = player.y - PANEL_Y / 2 - 2
-        max_y = player.y + PANEL_Y / 2 - 2
+        min_x = max(0, player.x - SCREEN_WIDTH / 2 - 2)
+        max_x = min(player.x + SCREEN_WIDTH / 2 - 2, self.w)
+        min_y = max(0, player.y - PANEL_Y / 2 - 2)
+        max_y = min(player.y + PANEL_Y / 2 - 2, self.h)
         for y in range(min_y, max_y):
             for x in range(min_x, max_x):
                 visible = libtcod.map_is_in_fov(self.fov_map, x, y)
