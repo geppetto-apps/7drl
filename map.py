@@ -133,8 +133,12 @@ class Map:
         self._objects.insert(0, object)
 
     def draw(self, con, player):
-        for y in range(self.h):
-            for x in range(self.w):
+        min_x = player.x - SCREEN_WIDTH / 2 - 2
+        max_x = player.x + SCREEN_WIDTH / 2 - 2
+        min_y = player.y - PANEL_Y / 2 - 2
+        max_y = player.y + PANEL_Y / 2 - 2
+        for y in range(min_y, max_y):
+            for x in range(min_x, max_x):
                 visible = libtcod.map_is_in_fov(self.fov_map, x, y)
                 wall = self.tiles[x][y].block_sight
                 if not visible and not DEBUG:
